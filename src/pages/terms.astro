@@ -1,6 +1,6 @@
 ---
 import Layout from '@layouts/Layout.astro';
-import { SITE } from '@lib/constants';
+import { SITE, SOCIALS } from '@lib/constants';
 ---
 
 <Layout
@@ -26,14 +26,10 @@ import { SITE } from '@lib/constants';
       <section data-reveal="up">
         <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Description of Service</h2>
         <p class="text-text-muted leading-relaxed">
-          Faithfully Crafted is a portfolio and showcase website for handmade crochet creations.
-          The Site displays gallery images, product information, and contact details. The Site is
-          for informational and showcase purposes only.
+          Faithfully Crafted provides an online portfolio, informational platform, and showcase for handmade creations and related content. The Service includes visual galleries, product descriptions, and methods to contact us for inquiries or custom orders.
         </p>
         <p class="text-text-muted leading-relaxed mt-3">
-          The Site does not process payments, manage shopping carts, or handle transactions directly.
-          All orders and inquiries are handled through third-party platforms such as Facebook
-          Messenger, and are subject to the terms and policies of those platforms.
+          Any products or services ordered via third-party platforms linked on our Site (such as Facebook Messenger or Instagram) are subject to the terms and conditions, as well as the privacy policies, of those respective third-party platforms. We make no guarantees passing through those platforms.
         </p>
       </section>
 
@@ -78,32 +74,42 @@ import { SITE } from '@lib/constants';
       <section data-reveal="up">
         <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Disclaimer of Warranties</h2>
         <p class="text-text-muted leading-relaxed">
-          The Site is provided on an "as is" and "as available" basis without warranties of any
-          kind, either express or implied. We do not warrant that the Site will be uninterrupted,
-          error-free, or free of harmful components.
+          Our Service is provided on an "as is" and "as available" basis without any warranties of any kind, whether express, implied, or statutory. To the fullest extent permissible pursuant to applicable law, Faithfully Crafted disclaims all warranties, express or implied, including, but not limited to, implied warranties of merchantability, fitness for a particular purpose, non-infringement, and title. We do not warrant that the Service will be uninterrupted or error-free, that defects will be corrected, or that the Service or the server that makes it available are free of viruses or other harmful components.
         </p>
         <p class="text-text-muted leading-relaxed mt-3">
-          Product images displayed on the Site are for illustrative purposes. Handmade items may
-          vary slightly in color, size, and detail from the photographs shown.
+          Any products or items displayed are for illustrative purposes. Actual physical products may vary.
         </p>
       </section>
 
       <section data-reveal="up">
         <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Limitation of Liability</h2>
         <p class="text-text-muted leading-relaxed">
-          To the fullest extent permitted by applicable law, Faithfully Crafted shall not be
-          liable for any indirect, incidental, special, consequential, or punitive damages
-          arising out of or related to your use of the Site, even if we have been advised of
-          the possibility of such damages.
+          In no event shall Faithfully Crafted, its partners, agents, or affiliates, be liable for any indirect, incidental, special, consequential, punitive, or exemplary damages, including but not limited to, damages for loss of profits, revenue, goodwill, use, data, or other intangible losses, resulting from: (i) your access to or use of or inability to access or use the Service; (ii) any conduct or content of any third party on the Service; (iii) any content obtained from the Service; and (iv) unauthorized access, use, or alteration of your transmissions or content, whether based on warranty, contract, tort (including negligence), or any other legal theory, whether or not we have been informed of the possibility of such damage.
         </p>
       </section>
 
       <section data-reveal="up">
         <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Governing Law</h2>
         <p class="text-text-muted leading-relaxed">
-          These Terms of Service are governed by and construed in accordance with the laws of
-          the Republic of the Philippines. Any disputes arising from these terms shall be subject
-          to the exclusive jurisdiction of the courts located in Metro Manila, Philippines.
+          These Terms of Service and any separate agreements whereby we provide you Services shall be governed by and construed in accordance with the laws of the Republic of the Philippines, without regard to its conflict of law provisions.
+        </p>
+      </section>
+
+      <section data-reveal="up">
+        <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Severability</h2>
+        <p class="text-text-muted leading-relaxed">
+          If any provision of these Terms is found to be unlawful, void, or unenforceable by a
+          court of competent jurisdiction, that provision shall be deemed severable and shall not
+          affect the validity and enforceability of the remaining provisions.
+        </p>
+      </section>
+
+      <section data-reveal="up">
+        <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Entire Agreement</h2>
+        <p class="text-text-muted leading-relaxed">
+          These Terms of Service, together with our Privacy Policy, constitute the entire agreement
+          between you and Faithfully Crafted regarding your use of the Site, and supersede all
+          prior and contemporaneous understandings, agreements, representations, and warranties.
         </p>
       </section>
 
@@ -123,7 +129,8 @@ import { SITE } from '@lib/constants';
         </p>
         <ul class="list-none text-text-muted mt-3 space-y-1">
           <li>Email: <a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
-          <li>Facebook: <a href="https://www.facebook.com/gingerchets/" target="_blank" rel="noopener noreferrer">facebook.com/gingerchets</a></li>
+          <li>Facebook: <a href={SOCIALS.facebook.url} target="_blank" rel="noopener noreferrer">Our Facebook Page</a></li>
+          <li>Instagram: <a href={SOCIALS.instagram.url} target="_blank" rel="noopener noreferrer">Our Instagram Profile</a></li>
         </ul>
       </section>
     </div>

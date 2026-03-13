@@ -1,6 +1,6 @@
 ---
 import Layout from '@layouts/Layout.astro';
-import { SITE } from '@lib/constants';
+import { SITE, SOCIALS } from '@lib/constants';
 ---
 
 <Layout
@@ -30,14 +30,16 @@ import { SITE } from '@lib/constants';
       <section data-reveal="up">
         <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Information We Collect</h2>
         <p class="text-text-muted leading-relaxed">
-          Our website is a static portfolio site. We do <strong class="text-text">not</strong> directly collect
-          personal information from visitors. Specifically:
+          We collect information to provide better services to all our users. Collecting this information helps us improve our website and provide a tailored experience. The types of information we collect include:
+        </p>
+        <h3 class="font-heading text-lg font-bold text-text mt-6 mb-2">Information Automatically Collected</h3>
+        <p class="text-text-muted leading-relaxed">
+          When you access our Site, our servers and third-party hosting providers automatically collect information about your interaction with the Site. This may include:
         </p>
         <ul class="list-disc list-inside text-text-muted mt-3 space-y-2">
-          <li>We do not use contact forms that collect your name, email, or phone number on this site.</li>
-          <li>We do not use cookies or tracking scripts originating from our website.</li>
-          <li>We do not require account registration or login.</li>
-          <li>All fonts are self-hosted on our servers -- no third-party font services track your visits.</li>
+          <li><strong>Device Information:</strong> We may collect device-specific information (such as your hardware model, operating system version, and unique device identifiers).</li>
+          <li><strong>Log Information:</strong> Details of how you used our service (such as your search queries), your IP address, browser type, referring/exit pages, and operating system.</li>
+          <li><strong>Cookies and Similar Technologies:</strong> Our hosting provider (Cloudflare) may use standard web technologies as part of its service operations. We do not set first-party cookies on this Site.</li>
         </ul>
       </section>
 
@@ -55,22 +57,15 @@ import { SITE } from '@lib/constants';
           <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare's Privacy Policy</a>.
         </p>
 
-        <h3 class="font-heading text-lg font-bold text-text mt-6 mb-2">Facebook (Meta)</h3>
+        <h3 class="font-heading text-lg font-bold text-text mt-6 mb-2">Social Media Plugins and External Services</h3>
         <p class="text-text-muted leading-relaxed">
-          Gallery content on this website is sourced from our public Facebook Page using the
-          Facebook Graph API. This data is fetched at build time on our servers and served as
-          static content -- no Facebook scripts, pixels, or tracking code runs in your browser
-          when you visit our site. If you click links to our Facebook Page or Messenger, you
-          will be subject to
-          <a href="https://www.facebook.com/privacy/policy/" target="_blank" rel="noopener noreferrer">Meta's Privacy Policy</a>.
+          Our website displays gallery content sourced from our public Facebook Page via the Facebook Graph API. This content is fetched on our servers at build time and served as static images and text -- no Facebook scripts, tracking pixels, or third-party code runs in your browser when you visit our Site.
+          Our website also contains links to our social media profiles. Clicking these links takes you to third-party platforms governed by their own privacy policies:
+          <br /><br />
+          <a href="https://www.facebook.com/privacy/policy/" target="_blank" rel="noopener noreferrer">Meta's Privacy Policy (Facebook and Instagram)</a>
         </p>
 
-        <h3 class="font-heading text-lg font-bold text-text mt-6 mb-2">Instagram (Meta)</h3>
-        <p class="text-text-muted leading-relaxed">
-          Our website contains links to our Instagram profile. No Instagram tracking code runs
-          on our site. Clicking these links takes you to Instagram, which is governed by
-          <a href="https://www.facebook.com/privacy/policy/" target="_blank" rel="noopener noreferrer">Meta's Privacy Policy</a>.
-        </p>
+
       </section>
 
       <section data-reveal="up">
@@ -102,11 +97,32 @@ import { SITE } from '@lib/constants';
       </section>
 
       <section data-reveal="up">
+        <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Your Privacy Rights</h2>
+        <p class="text-text-muted leading-relaxed">
+          Depending on your location and applicable data protection laws (including the GDPR and CCPA), you may have certain rights regarding your personal information, including the right to:
+        </p>
+        <ul class="list-disc list-inside text-text-muted mt-3 space-y-2">
+          <li>Request access to your personal information.</li>
+          <li>Request correction or deletion of your personal information.</li>
+          <li>Object to or restrict our processing of your personal information.</li>
+          <li>Request portability of your personal information.</li>
+        </ul>
+        <p class="text-text-muted leading-relaxed mt-3">
+          To exercise any of these rights, please contact us using the information provided below. We will respond to your request in accordance with applicable legal requirements.
+        </p>
+      </section>
+
+      <section data-reveal="up">
+        <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Data Retention</h2>
+        <p class="text-text-muted leading-relaxed">
+          We retain personal information we collect from you where we have an ongoing legitimate business need to do so (for example, to provide you with a service you have requested or to comply with applicable legal, tax, or accounting requirements). When we have no ongoing legitimate business need to process your personal information, we will either delete or anonymize it.
+        </p>
+      </section>
+
+      <section data-reveal="up">
         <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Changes to This Policy</h2>
         <p class="text-text-muted leading-relaxed">
-          We may update this Privacy Policy from time to time. Changes will be posted on this page
-          with an updated "Last updated" date. Your continued use of the website after changes
-          constitutes acceptance of the updated policy.
+          We may update this Privacy Policy from time to time in response to changing legal, technical, or business developments. When we update our Privacy Policy, we will take appropriate measures to inform you, consistent with the significance of the changes we make. You can see when this Privacy Policy was last updated by checking the "Last updated" date displayed at the top of this Privacy Policy.
         </p>
       </section>
 
@@ -117,7 +133,8 @@ import { SITE } from '@lib/constants';
         </p>
         <ul class="list-none text-text-muted mt-3 space-y-1">
           <li>Email: <a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
-          <li>Facebook: <a href="https://www.facebook.com/gingerchets/" target="_blank" rel="noopener noreferrer">facebook.com/gingerchets</a></li>
+          <li>Facebook: <a href={SOCIALS.facebook.url} target="_blank" rel="noopener noreferrer">Our Facebook Page</a></li>
+          <li>Instagram: <a href={SOCIALS.instagram.url} target="_blank" rel="noopener noreferrer">Our Instagram Profile</a></li>
         </ul>
       </section>
     </div>
