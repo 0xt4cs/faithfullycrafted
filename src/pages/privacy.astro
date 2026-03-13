@@ -1,0 +1,125 @@
+---
+import Layout from '@layouts/Layout.astro';
+import { SITE } from '@lib/constants';
+---
+
+<Layout
+  title="Privacy Policy"
+  description="Privacy Policy for Faithfully Crafted -- how we handle your data, third-party services, and your rights."
+>
+  <article class="py-12 sm:py-16">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 prose prose-sm sm:prose-base">
+      <header class="text-center mb-12" data-reveal="up">
+        <h1 class="font-heading text-4xl sm:text-5xl font-bold text-text">Privacy Policy</h1>
+        <p class="mt-3 text-text-muted">Last updated: March 13, 2026</p>
+      </header>
+
+      <section data-reveal="up" data-reveal-delay="100">
+        <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Introduction</h2>
+        <p class="text-text-muted leading-relaxed">
+          Faithfully Crafted ("we," "us," or "our") operates the website at
+          <a href={SITE.url}>{SITE.url}</a>. This Privacy Policy explains how we collect, use,
+          and protect information when you visit our website.
+        </p>
+        <p class="text-text-muted leading-relaxed mt-3">
+          By using our website, you agree to the practices described in this policy. If you do not
+          agree, please do not use the website.
+        </p>
+      </section>
+
+      <section data-reveal="up">
+        <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Information We Collect</h2>
+        <p class="text-text-muted leading-relaxed">
+          Our website is a static portfolio site. We do <strong class="text-text">not</strong> directly collect
+          personal information from visitors. Specifically:
+        </p>
+        <ul class="list-disc list-inside text-text-muted mt-3 space-y-2">
+          <li>We do not use contact forms that collect your name, email, or phone number on this site.</li>
+          <li>We do not use cookies or tracking scripts originating from our website.</li>
+          <li>We do not require account registration or login.</li>
+          <li>All fonts are self-hosted on our servers -- no third-party font services track your visits.</li>
+        </ul>
+      </section>
+
+      <section data-reveal="up">
+        <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Third-Party Services</h2>
+        <p class="text-text-muted leading-relaxed">
+          Our website relies on the following third-party services:
+        </p>
+
+        <h3 class="font-heading text-lg font-bold text-text mt-6 mb-2">Cloudflare</h3>
+        <p class="text-text-muted leading-relaxed">
+          Our website is hosted on Cloudflare Pages. Cloudflare may collect basic server logs
+          (IP addresses, browser type, request timestamps) as part of standard web hosting
+          operations. For details, see
+          <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare's Privacy Policy</a>.
+        </p>
+
+        <h3 class="font-heading text-lg font-bold text-text mt-6 mb-2">Facebook (Meta)</h3>
+        <p class="text-text-muted leading-relaxed">
+          Gallery content on this website is sourced from our public Facebook Page using the
+          Facebook Graph API. This data is fetched at build time on our servers and served as
+          static content -- no Facebook scripts, pixels, or tracking code runs in your browser
+          when you visit our site. If you click links to our Facebook Page or Messenger, you
+          will be subject to
+          <a href="https://www.facebook.com/privacy/policy/" target="_blank" rel="noopener noreferrer">Meta's Privacy Policy</a>.
+        </p>
+
+        <h3 class="font-heading text-lg font-bold text-text mt-6 mb-2">Instagram (Meta)</h3>
+        <p class="text-text-muted leading-relaxed">
+          Our website contains links to our Instagram profile. No Instagram tracking code runs
+          on our site. Clicking these links takes you to Instagram, which is governed by
+          <a href="https://www.facebook.com/privacy/policy/" target="_blank" rel="noopener noreferrer">Meta's Privacy Policy</a>.
+        </p>
+      </section>
+
+      <section data-reveal="up">
+        <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">External Links</h2>
+        <p class="text-text-muted leading-relaxed">
+          Our website contains links to external websites and services (Facebook, Instagram,
+          Messenger). We are not responsible for the privacy practices of these third-party sites.
+          We encourage you to review their privacy policies before providing any personal
+          information.
+        </p>
+      </section>
+
+      <section data-reveal="up">
+        <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Children's Privacy</h2>
+        <p class="text-text-muted leading-relaxed">
+          Our website is not directed at children under the age of 13. We do not knowingly
+          collect personal information from children. If you believe a child has provided us
+          with personal information, please contact us so we can take appropriate action.
+        </p>
+      </section>
+
+      <section data-reveal="up">
+        <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Data Security</h2>
+        <p class="text-text-muted leading-relaxed">
+          We take reasonable measures to protect any information associated with our website.
+          Our site is served over HTTPS with strict security headers, including Content Security
+          Policy, HSTS, and X-Frame-Options.
+        </p>
+      </section>
+
+      <section data-reveal="up">
+        <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Changes to This Policy</h2>
+        <p class="text-text-muted leading-relaxed">
+          We may update this Privacy Policy from time to time. Changes will be posted on this page
+          with an updated "Last updated" date. Your continued use of the website after changes
+          constitutes acceptance of the updated policy.
+        </p>
+      </section>
+
+      <section data-reveal="up">
+        <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">Contact Us</h2>
+        <p class="text-text-muted leading-relaxed">
+          If you have questions about this Privacy Policy, you can reach us at:
+        </p>
+        <ul class="list-none text-text-muted mt-3 space-y-1">
+          <li>Email: <a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+          <li>Facebook: <a href="https://www.facebook.com/gingerchets/" target="_blank" rel="noopener noreferrer">facebook.com/gingerchets</a></li>
+        </ul>
+      </section>
+    </div>
+  </article>
+</Layout>

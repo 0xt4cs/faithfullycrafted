@@ -1,7 +1,7 @@
 <div
   id="lightbox"
   class="fixed inset-0 z-[100] bg-text/85 backdrop-blur-md flex items-center justify-center
-         opacity-0 pointer-events-none transition-opacity duration-300"
+         opacity-0 pointer-events-none transition-opacity duration-300 overscroll-contain"
   role="dialog"
   aria-modal="true"
   aria-label="Image viewer"
@@ -219,6 +219,8 @@
       }
     }
 
+    function blockScroll(e: Event) { e.preventDefault(); }
+
     function open(index: number) {
       isOpen = true;
       currentIndex = index;
@@ -229,6 +231,8 @@
       lightbox.classList.remove('opacity-0', 'pointer-events-none');
       lightbox.classList.add('opacity-100', 'pointer-events-auto');
       document.body.style.overflow = 'hidden';
+      document.addEventListener('wheel', blockScroll, { passive: false });
+      document.addEventListener('touchmove', blockScroll, { passive: false });
       startAutoplay();
     }
 
@@ -238,10 +242,13 @@
       lightbox.classList.add('opacity-0', 'pointer-events-none');
       lightbox.classList.remove('opacity-100', 'pointer-events-auto');
       document.body.style.overflow = '';
+      document.removeEventListener('wheel', blockScroll);
+      document.removeEventListener('touchmove', blockScroll);
     }
 
     function prev() {
       if (currentIndex > 0 && !isFading) {
+        stopAutoplay();
         autoplayProgress = 0;
         crossfadeTo(currentIndex - 1, () => {
           updateProgressBar();
@@ -252,6 +259,7 @@
 
     function next() {
       if (currentIndex < images.length - 1 && !isFading) {
+        stopAutoplay();
         autoplayProgress = 0;
         crossfadeTo(currentIndex + 1, () => {
           updateProgressBar();

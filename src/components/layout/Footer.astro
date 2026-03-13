@@ -50,11 +50,14 @@ import SocialIcon from '@components/ui/SocialIcon.astro';
       </div>
     </div>
 
-    <div class="mt-10 pt-6 border-t border-primary/10 text-center">
+    <div class="mt-10 pt-6 border-t border-primary/10 flex flex-col sm:flex-row items-center justify-between gap-3">
       <p class="text-xs text-text-muted">
-        &copy; {new Date().getFullYear()}
-        {SITE.name}.
+        &copy; {new Date().getFullYear()} {SITE.name}.
       </p>
+      <div class="flex items-center gap-4">
+        <a href="/privacy/" class="text-xs text-text-muted hover:text-primary-bold transition-colors">Privacy Policy</a>
+        <a href="/terms/" class="text-xs text-text-muted hover:text-primary-bold transition-colors">Terms of Service</a>
+      </div>
     </div>
   </div>
 </footer>

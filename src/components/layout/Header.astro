@@ -9,6 +9,7 @@ const isHome = Astro.url.pathname === '/';
   class="fixed top-0 left-0 right-0 z-[40]
          bg-transparent backdrop-blur-0 border border-transparent
          transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+  style="max-width:100%"
   data-home={isHome ? '' : undefined}
 >
   <nav
@@ -148,8 +149,11 @@ const isHome = Astro.url.pathname === '/';
   /* ---- Dynamic Island morphing ---- */
   #main-header.nav-island {
     top: 10px;
-    left: 12px;
-    right: 12px;
+    left: 0;
+    right: 0;
+    max-width: calc(100% - 24px);
+    margin-left: auto;
+    margin-right: auto;
     border-radius: 9999px;
     border-color: rgba(255, 255, 255, 0.15);
     box-shadow:
@@ -157,6 +161,13 @@ const isHome = Astro.url.pathname === '/';
       0 2px 8px rgba(0, 0, 0, 0.02);
     background: rgba(255, 245, 247, 0.12);
     backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+  }
+
+  @media (min-width: 768px) {
+    #main-header.nav-island {
+      max-width: 780px;
+    }
   }
 
   #main-header.nav-island #nav-inner {
@@ -164,20 +175,6 @@ const isHome = Astro.url.pathname === '/';
     padding-left: 2rem;
     padding-right: 2rem;
     height: 3.5rem;
-  }
-
-  @media (min-width: 768px) {
-    #main-header.nav-island {
-      left: calc(50% - 360px);
-      right: calc(50% - 360px);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    #main-header.nav-island {
-      left: calc(50% - 380px);
-      right: calc(50% - 380px);
-    }
   }
 </style>
 

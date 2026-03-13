@@ -18,6 +18,13 @@ https://www.faithfullycrafted.shop/* https://faithfullycrafted.shop/:splat 301
 /works       /gallery/   301
 /works/      /gallery/   301
 
+# Legal page aliases
+/privacy-policy   /privacy/   301
+/privacy-policy/  /privacy/   301
+/tos              /terms/     301
+/tos/             /terms/     301
+/terms-of-service /terms/     301
+
 # Social shortlinks
 /fb   https://www.facebook.com/gingerchets/               302
 /ig   https://www.instagram.com/faithfully_crafted04       302
