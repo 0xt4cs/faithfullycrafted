@@ -28,10 +28,10 @@
 
 @keyframes stitch-in {
   from {
-    width: 0;
+    transform: scaleX(0);
   }
   to {
-    width: 100%;
+    transform: scaleX(1);
   }
 }
 
@@ -137,6 +137,7 @@
     transparent 100%
   );
   animation: shimmer-loading 1.5s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-float {
@@ -160,6 +161,7 @@
 }
 
 .animate-stitch {
+  transform-origin: left;
   animation: stitch-in 1s ease-out forwards;
 }
 

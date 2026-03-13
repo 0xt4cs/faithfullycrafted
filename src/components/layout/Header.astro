@@ -66,6 +66,7 @@ const isHome = Astro.url.pathname === '/';
   class="fixed inset-0 z-[90] md:hidden
          opacity-0 pointer-events-none transition-all duration-400"
   aria-hidden="true"
+  inert
 >
   <div class="absolute inset-0 bg-gradient-to-b from-cream/98 via-background/98 to-surface/98 backdrop-blur-2xl"></div>
 
@@ -201,6 +202,7 @@ const isHome = Astro.url.pathname === '/';
 
     function openMenu() {
       menuOpen = true;
+      menu!.removeAttribute('inert');
       menu!.classList.remove('opacity-0', 'pointer-events-none');
       menu!.classList.add('opacity-100', 'pointer-events-auto', 'menu-open');
       btn!.setAttribute('aria-expanded', 'true');
@@ -214,6 +216,7 @@ const isHome = Astro.url.pathname === '/';
       menu!.classList.remove('opacity-100', 'pointer-events-auto', 'menu-open');
       btn!.setAttribute('aria-expanded', 'false');
       menu!.setAttribute('aria-hidden', 'true');
+      menu!.setAttribute('inert', '');
       document.body.style.overflow = '';
     }
 
