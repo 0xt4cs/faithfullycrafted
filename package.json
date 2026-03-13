@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "fetch-gallery": "node scripts/fetch-gallery.mjs",
+    "build": "node scripts/fetch-gallery.mjs && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "lint": "eslint . --ext .ts,.astro",

@@ -53,7 +53,7 @@ Opens at `http://localhost:4321`.
 npm run build
 ```
 
-Outputs static files to `dist/`. During build, the Facebook Graph API is called to fetch posts, images are downloaded and compressed to `public/gallery/`, and all pages are pre-rendered as static HTML.
+Outputs static files to `dist/`. The build runs a pre-build script that fetches Facebook posts and downloads/compresses images to `public/gallery/`, then Astro copies everything to `dist/` and pre-renders all pages as static HTML.
 
 ### Preview
 
@@ -123,7 +123,12 @@ npx wrangler pages deploy dist
 
 ### CI/CD
 
-A GitHub Actions workflow is included at `.github/workflows/deploy.yml`. It requires these repository secrets:
+Two deployment pipelines work together without overlap:
+
+- **Cloudflare Pages (auto)** -- builds and deploys on every push to `main`. Handles code changes.
+- **GitHub Actions (scheduled)** -- rebuilds every 3 days to pick up new Facebook posts. Also has a manual "Run workflow" button for instant refresh.
+
+The GitHub Actions workflow at `.github/workflows/deploy.yml` requires these repository secrets:
 
 - `FB_PAGE_ID`
 - `FB_ACCESS_TOKEN`
@@ -151,4 +156,4 @@ A GitHub Actions workflow is included at `.github/workflows/deploy.yml`. It requ
 
 ## License
 
-All rights reserved.
+[MIT](LICENSE)

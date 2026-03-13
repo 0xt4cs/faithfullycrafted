@@ -9,4 +9,5 @@ dist/
 Thumbs.db
 .wrangler/
 .vercel/
-public/gallery/
+public/gallery/*.jpg
+public/gallery/*.png

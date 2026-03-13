@@ -1,8 +1,8 @@
-name: Deploy to Cloudflare Pages
+name: Scheduled Rebuild and Deploy
 
 on:
-  push:
-    branches: [main]
+  schedule:
+    - cron: '0 0 */3 * *'
   workflow_dispatch:
 
 jobs:
