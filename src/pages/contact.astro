@@ -1,0 +1,76 @@
+---
+import Layout from '@layouts/Layout.astro';
+import ContactCard from '@components/sections/ContactCard.astro';
+import Divider from '@components/ui/Divider.astro';
+---
+
+<Layout
+  title="Contact"
+  description="Get in touch with Faithfully Crafted — reach Faith on Facebook Messenger, Instagram, or email for custom crochet orders and inquiries."
+>
+  <ContactCard />
+
+  <Divider />
+
+  <!-- FAQ section with semantic description list -->
+  <section class="pb-16 sm:pb-20" aria-label="Frequently asked questions">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2
+        class="font-heading text-2xl sm:text-3xl font-700 text-text text-center mb-10"
+        data-reveal="up"
+      >
+        Common Questions
+      </h2>
+
+      <dl class="space-y-6">
+        <div
+          class="bg-surface rounded-2xl p-6 border border-primary/10 shadow-sm"
+          data-reveal="up"
+          data-reveal-delay="0"
+        >
+          <dt class="font-heading font-700 text-text">Do you accept custom orders?</dt>
+          <dd class="mt-2 text-text-muted text-sm">
+            Absolutely! Custom orders are my favorite. Just send me a message with your idea and
+            I'll give you a quote and timeline.
+          </dd>
+        </div>
+
+        <div
+          class="bg-surface rounded-2xl p-6 border border-primary/10 shadow-sm"
+          data-reveal="up"
+          data-reveal-delay="100"
+        >
+          <dt class="font-heading font-700 text-text">How long does it take to make a piece?</dt>
+          <dd class="mt-2 text-text-muted text-sm">
+            It depends on the complexity! Small amigurumi take 2-3 days, while larger or more
+            detailed pieces can take up to a week or more.
+          </dd>
+        </div>
+
+        <div
+          class="bg-surface rounded-2xl p-6 border border-primary/10 shadow-sm"
+          data-reveal="up"
+          data-reveal-delay="200"
+        >
+          <dt class="font-heading font-700 text-text">Do you ship nationwide?</dt>
+          <dd class="mt-2 text-text-muted text-sm">
+            Yes! I ship within the Philippines. Shipping rates depend on your location. Message me
+            for details.
+          </dd>
+        </div>
+
+        <div
+          class="bg-surface rounded-2xl p-6 border border-primary/10 shadow-sm"
+          data-reveal="up"
+          data-reveal-delay="300"
+        >
+          <dt class="font-heading font-700 text-text">What payment methods do you accept?</dt>
+          <dd class="mt-2 text-text-muted text-sm">
+            I accept GCash, bank transfer, and COD for local meetups. Payment details will be shared
+            once we finalize your order.
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+</Layout>

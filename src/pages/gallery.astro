@@ -1,0 +1,28 @@
+---
+import Layout from '@layouts/Layout.astro';
+import GalleryGrid from '@components/sections/GalleryGrid.astro';
+import { getGalleryItems } from '@lib/facebook';
+
+const items = await getGalleryItems();
+---
+
+<Layout
+  title="Gallery"
+  description="Browse the full collection of handmade crochet creations by Faithfully Crafted — amigurumi, accessories, and custom gifts."
+>
+  <header class="pt-8 sm:pt-12 pb-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h1
+        class="font-heading text-4xl sm:text-5xl font-700 text-text"
+        data-reveal="up"
+      >
+        Gallery
+      </h1>
+      <p class="mt-3 text-text-muted max-w-md mx-auto" data-reveal="up" data-reveal-delay="100">
+        Every piece tells a story. Browse through my handmade crochet collection.
+      </p>
+    </div>
+  </header>
+
+  <GalleryGrid items={items} />
+</Layout>

@@ -1,0 +1,238 @@
+---
+import { NAV_ITEMS, SITE } from '@lib/constants';
+
+const isHome = Astro.url.pathname === '/';
+---
+
+<header
+  id="main-header"
+  class="fixed top-0 left-0 right-0 z-[40]
+         bg-transparent backdrop-blur-0 border border-transparent
+         transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+  data-home={isHome ? '' : undefined}
+>
+  <nav
+    id="nav-inner"
+    aria-label="Main navigation"
+    class="mx-auto px-6 sm:px-8 lg:px-10 h-[4.5rem] flex items-center justify-between
+           transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
+           max-w-7xl gap-10"
+  >
+    <!-- Logo (hidden by default on home, fades in with island) -->
+    <a href="/" class="nav-brand flex items-center gap-2 group shrink-0" aria-label="Faithfully Crafted Home">
+      <span class="text-3xl font-brand text-primary-bold group-hover:animate-wiggle transition-transform">
+        {SITE.name}
+      </span>
+    </a>
+
+    <!-- Desktop Nav -->
+    <ul class="hidden md:flex items-center gap-9 lg:gap-12" role="list">
+      {
+        NAV_ITEMS.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              class="relative font-heading font-semibold text-base text-text hover:text-primary-bold transition-colors py-1
+                     after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary-bold after:transition-all after:duration-300
+                     hover:after:w-full"
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <!-- Mobile Hamburger (animated 3-bar to X) -->
+    <button
+      id="mobile-menu-btn"
+      class="md:hidden relative w-12 h-12 flex items-center justify-center rounded-xl hover:bg-white/20 transition-colors shrink-0"
+      aria-label="Open menu"
+      aria-expanded="false"
+    >
+      <div class="w-[22px] h-[18px] relative flex flex-col justify-between">
+        <span class="hamburger-bar block h-[2px] w-full bg-text rounded-full transition-all duration-300 origin-center"></span>
+        <span class="hamburger-bar block h-[2px] w-full bg-text rounded-full transition-all duration-300 origin-center"></span>
+        <span class="hamburger-bar block h-[2px] w-full bg-text rounded-full transition-all duration-300 origin-center"></span>
+      </div>
+    </button>
+  </nav>
+</header>
+
+<!-- Spacer to push content below fixed header -->
+<div class="h-[4.5rem]"></div>
+
+<!-- Mobile Menu Overlay (OUTSIDE header for correct z-index) -->
+<div
+  id="mobile-menu"
+  class="fixed inset-0 z-[90] md:hidden
+         opacity-0 pointer-events-none transition-all duration-400"
+  aria-hidden="true"
+>
+  <div class="absolute inset-0 bg-gradient-to-b from-cream/98 via-background/98 to-surface/98 backdrop-blur-2xl"></div>
+
+  <div class="relative h-full flex flex-col items-center justify-center gap-6">
+    <span class="text-4xl font-brand text-primary-bold mobile-nav-item" style="--nav-i:0">
+      {SITE.name}
+    </span>
+
+    {
+      NAV_ITEMS.map((item, i) => (
+        <a
+          href={item.href}
+          class="mobile-nav-item text-2xl font-heading font-semibold text-text hover:text-primary-bold transition-colors"
+          style={`--nav-i:${i + 1}`}
+        >
+          {item.label}
+        </a>
+      ))
+    }
+
+    <div class="mobile-nav-item mt-4 opacity-40" style="--nav-i:5" aria-hidden="true">
+      <svg class="w-10 h-10 text-primary animate-spin-slow" viewBox="0 0 40 40" fill="currentColor">
+        <circle cx="20" cy="20" r="16" opacity="0.3" />
+        <path d="M10 26c5-10 10-12 12-22M14 8c4 10 8 14 16 18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5" />
+      </svg>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ---- Brand: hidden at top on HOME page only, fades in with island ---- */
+  .nav-brand {
+    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  #main-header[data-home] .nav-brand {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.95);
+    pointer-events: none;
+  }
+
+  #main-header[data-home].nav-island .nav-brand {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  /* Pink glow so brand text pops against glass */
+  #main-header.nav-island .nav-brand span {
+    text-shadow: 0 1px 10px rgba(232, 102, 154, 0.35);
+  }
+
+  /* ---- Hamburger to X animation ---- */
+  [aria-expanded="true"] .hamburger-bar:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+  [aria-expanded="true"] .hamburger-bar:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  [aria-expanded="true"] .hamburger-bar:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  /* ---- Mobile nav staggered slide-in ---- */
+  .mobile-nav-item {
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.35s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: calc(var(--nav-i, 0) * 70ms);
+  }
+
+  #mobile-menu.menu-open .mobile-nav-item {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* ---- Dynamic Island morphing ---- */
+  #main-header.nav-island {
+    top: 10px;
+    left: 12px;
+    right: 12px;
+    border-radius: 9999px;
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow:
+      0 8px 32px rgba(232, 102, 154, 0.06),
+      0 2px 8px rgba(0, 0, 0, 0.02);
+    background: rgba(255, 245, 247, 0.12);
+    backdrop-filter: blur(28px);
+  }
+
+  #main-header.nav-island #nav-inner {
+    max-width: none;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    height: 3.5rem;
+  }
+
+  @media (min-width: 768px) {
+    #main-header.nav-island {
+      left: calc(50% - 360px);
+      right: calc(50% - 360px);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    #main-header.nav-island {
+      left: calc(50% - 380px);
+      right: calc(50% - 380px);
+    }
+  }
+</style>
+
+<script>
+  function initHeader() {
+    const btn = document.getElementById('mobile-menu-btn');
+    const menu = document.getElementById('mobile-menu');
+    const header = document.getElementById('main-header');
+    if (!btn || !menu || !header) return;
+
+    let menuOpen = false;
+
+    function openMenu() {
+      menuOpen = true;
+      menu!.classList.remove('opacity-0', 'pointer-events-none');
+      menu!.classList.add('opacity-100', 'pointer-events-auto', 'menu-open');
+      btn!.setAttribute('aria-expanded', 'true');
+      menu!.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu() {
+      menuOpen = false;
+      menu!.classList.add('opacity-0', 'pointer-events-none');
+      menu!.classList.remove('opacity-100', 'pointer-events-auto', 'menu-open');
+      btn!.setAttribute('aria-expanded', 'false');
+      menu!.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    btn.addEventListener('click', () => (menuOpen ? closeMenu() : openMenu()));
+    menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menuOpen) closeMenu();
+    });
+
+    let ticking = false;
+    function onScroll() {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          if (window.scrollY > 80) {
+            header!.classList.add('nav-island');
+          } else {
+            header!.classList.remove('nav-island');
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  initHeader();
+  document.addEventListener('astro:after-swap', initHeader);
+</script>

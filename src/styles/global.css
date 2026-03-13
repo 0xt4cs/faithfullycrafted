@@ -1,0 +1,126 @@
+@import 'tailwindcss';
+@import './animations.css';
+@import './cursor.css';
+
+@font-face {
+  font-family: 'Quicksand';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/quicksand-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/dm-sans-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/dm-sans-italic-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Dancing Script';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/dancing-script-latin.woff2') format('woff2');
+}
+
+@theme {
+  --color-background: #fff5f7;
+  --color-surface: #fde8ee;
+  --color-cream: #fcebd5;
+  --color-primary: #f4b8c8;
+  --color-primary-bold: #e8669a;
+  --color-lavender: #c4b5d9;
+  --color-mint: #a0d8cf;
+  --color-gold: #d4aa6a;
+  --color-text: #4a3347;
+  --color-text-muted: #8b7080;
+
+  --font-heading: 'Quicksand', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-brand: 'Dancing Script', cursive;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-primary-bold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+a:not([class*='bg-']) {
+  color: var(--color-primary-bold);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:not([class*='bg-']):hover {
+  color: var(--color-lavender);
+}
+
+/* Touch vs Mouse device utilities */
+@media (hover: hover) and (pointer: fine) {
+  .touch-only {
+    display: none !important;
+  }
+}
+
+@media (pointer: coarse) {
+  .mouse-only {
+    display: none !important;
+  }
+  .touch-only {
+    display: block !important;
+  }
+}

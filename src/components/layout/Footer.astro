@@ -1,0 +1,60 @@
+---
+import { SITE, SOCIALS, NAV_ITEMS } from '@lib/constants';
+import SocialIcon from '@components/ui/SocialIcon.astro';
+---
+
+<footer class="bg-surface/60 border-t border-primary/10 mt-auto">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+      <!-- Brand -->
+      <div class="text-center md:text-left">
+        <span class="text-2xl font-brand text-primary-bold">{SITE.name}</span>
+        <p class="mt-2 text-sm text-text-muted max-w-xs mx-auto md:mx-0">{SITE.tagline}</p>
+      </div>
+
+      <!-- Quick Links -->
+      <nav class="text-center" aria-label="Footer navigation">
+        <h3 class="font-heading font-700 text-text mb-3 text-sm uppercase tracking-wider">Pages</h3>
+        <ul class="space-y-2" role="list">
+          {
+            NAV_ITEMS.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class="text-text-muted hover:text-primary-bold transition-colors text-sm"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <!-- Social -->
+      <div class="text-center md:text-right">
+        <h3 class="font-heading font-700 text-text mb-3 text-sm uppercase tracking-wider">
+          Connect
+        </h3>
+        <div class="flex items-center justify-center md:justify-end gap-4">
+          <SocialIcon platform="facebook" href={SOCIALS.facebook.url} />
+          <SocialIcon platform="instagram" href={SOCIALS.instagram.url} />
+          <SocialIcon platform="messenger" href={SOCIALS.facebook.messenger} />
+        </div>
+        <a
+          href={`mailto:${SITE.email}`}
+          class="inline-block mt-3 text-sm text-text-muted hover:text-primary-bold transition-colors"
+        >
+          {SITE.email}
+        </a>
+      </div>
+    </div>
+
+    <div class="mt-10 pt-6 border-t border-primary/10 text-center">
+      <p class="text-xs text-text-muted">
+        &copy; {new Date().getFullYear()}
+        {SITE.name}.
+      </p>
+    </div>
+  </div>
+</footer>

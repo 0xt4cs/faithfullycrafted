@@ -1,0 +1,145 @@
+---
+import type { GalleryItem } from '@typedefs/index';
+
+interface Props {
+  items: GalleryItem[];
+  initialCount?: number;
+  batchSize?: number;
+}
+
+const { items, initialCount = 8, batchSize = 8 } = Astro.props;
+
+const mdDirections = ['up', 'right', 'scale', 'left', 'fade', 'up'] as const;
+const smDirections = ['left', 'right'] as const;
+---
+
+<section class="py-16 sm:py-20 bg-background" id="gallery-section">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Masonry Grid -->
+    <div class="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 sm:gap-5" id="gallery-grid" role="list">
+      {
+        items.map((item, i) => (
+          <div
+            role="listitem"
+            class:list={['break-inside-avoid mb-4 sm:mb-5 gallery-item', { hidden: i >= initialCount }]}
+            data-gallery-index={i}
+            data-reveal-sm={smDirections[i % smDirections.length]}
+            data-reveal-md={mdDirections[i % mdDirections.length]}
+            data-reveal-delay={String((i % 4) * 80)}
+          >
+            <div
+              class="group relative rounded-2xl overflow-hidden bg-surface shadow-md shadow-primary/5
+                     transition-all duration-300
+                     hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/15"
+              data-lightbox
+              data-lightbox-src={item.imageUrl}
+              data-lightbox-alt={item.caption}
+              data-lightbox-caption={`${item.caption}${item.date !== 'Coming soon' ? ` — ${item.date}` : ''}`}
+            >
+              <div class="overflow-hidden skeleton-shimmer min-h-[200px]">
+                <img
+                  src={item.imageUrl}
+                  alt={item.caption}
+                  loading={i < 4 ? 'eager' : 'lazy'}
+                  class="w-full object-cover transition-transform duration-500 group-hover:scale-105 relative z-[1]"
+                />
+              </div>
+
+              {/* Hover overlay (mouse devices) */}
+              <div class="mouse-only absolute inset-0 bg-gradient-to-t from-text/70 via-text/10 to-transparent
+                          opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div class="absolute bottom-0 left-0 right-0 p-4">
+                  <p class="text-white text-sm line-clamp-3">{item.caption}</p>
+                  {item.date !== 'Coming soon' && (
+                    <p class="text-white/60 text-xs mt-1">{item.date}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Touch: always-visible bottom bar */}
+              <div class="touch-only hidden bg-surface/95 p-3 border-t border-primary/10">
+                <p class="text-text text-sm line-clamp-2">{item.caption}</p>
+                {item.date !== 'Coming soon' && (
+                  <p class="text-text-muted text-xs mt-1">{item.date}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- Load More Footer -->
+    {items.length > initialCount && (
+      <div class="text-center mt-10 space-y-4" id="gallery-footer">
+        <p class="text-text-muted text-sm" id="gallery-counter">
+          Showing <span id="gallery-shown">{Math.min(initialCount, items.length)}</span> of <span id="gallery-total">{items.length}</span> creations
+        </p>
+        <button
+          id="gallery-load-more"
+          class="inline-flex items-center justify-center gap-2 font-heading font-semibold rounded-2xl
+                 transition-all duration-200 active:scale-95
+                 bg-primary-bold text-[#ffffff] hover:bg-[#d4568a] shadow-lg shadow-primary/30
+                 px-8 py-3 text-base min-h-[48px]"
+        >
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" opacity="0.8">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M8 15c2-4 3-5 4-9M10 6c2 4 3 5 6 9" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" />
+          </svg>
+          Load More
+        </button>
+        <p id="gallery-done" class="hidden text-text-muted text-sm italic">
+          You've seen them all!
+        </p>
+      </div>
+    )}
+  </div>
+
+
+</section>
+
+<script define:vars={{ batchSize, totalItems: items.length }}>
+  function initGalleryLoadMore() {
+    const loadMoreBtn = document.getElementById('gallery-load-more');
+    const shownEl = document.getElementById('gallery-shown');
+    const doneEl = document.getElementById('gallery-done');
+    if (!loadMoreBtn || !shownEl) return;
+
+    let currentlyShown = parseInt(shownEl.textContent || '0', 10);
+
+    loadMoreBtn.addEventListener('click', () => {
+      const allItems = document.querySelectorAll('.gallery-item.hidden');
+      const toReveal = Array.from(allItems).slice(0, batchSize);
+
+      toReveal.forEach((el, i) => {
+        const htmlEl = el;
+        htmlEl.classList.remove('hidden');
+
+        // Apply scroll-reveal direction based on viewport
+        const isMobile = window.innerWidth < 768;
+        const dir = isMobile
+          ? htmlEl.getAttribute('data-reveal-sm')
+          : htmlEl.getAttribute('data-reveal-md');
+        htmlEl.setAttribute('data-reveal', dir || 'up');
+
+        // Stagger the reveal animation
+        setTimeout(() => htmlEl.classList.add('revealed'), i * 80);
+      });
+
+      currentlyShown = Math.min(currentlyShown + toReveal.length, totalItems);
+      shownEl.textContent = String(currentlyShown);
+
+      // Re-register new images with the lightbox
+      if (window.reinitLightbox) window.reinitLightbox();
+
+      // Check if all items are now shown
+      if (currentlyShown >= totalItems) {
+        loadMoreBtn.classList.add('hidden');
+        if (doneEl) doneEl.classList.remove('hidden');
+      }
+    });
+  }
+
+  initGalleryLoadMore();
+  document.addEventListener('astro:after-swap', initGalleryLoadMore);
+</script>

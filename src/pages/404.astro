@@ -1,0 +1,68 @@
+---
+import Layout from '@layouts/Layout.astro';
+import Button from '@components/ui/Button.astro';
+---
+
+<Layout title="Page Not Found" description="The page you're looking for doesn't exist.">
+  <meta slot="head" name="robots" content="noindex" />
+
+  <section class="relative min-h-[70vh] flex items-center justify-center overflow-hidden" aria-label="Page not found">
+    <!-- Background 404 text -->
+    <span
+      class="absolute font-brand text-primary/[0.06] select-none pointer-events-none"
+      style="font-size: clamp(12rem, 30vw, 24rem);"
+      aria-hidden="true"
+    >
+      404
+    </span>
+
+    <!-- Floating decorations -->
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-1/4 right-[15%] w-6 h-6 bg-mint/30 rounded-full animate-float"></div>
+      <div class="absolute bottom-1/3 left-[10%] w-4 h-4 bg-lavender/30 rounded-full animate-float-delayed"></div>
+      <svg class="absolute top-[15%] left-[20%] w-5 h-5 text-gold/30 animate-pulse-soft" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 0L14 9L24 12L14 14L12 24L10 14L0 12L10 9Z" />
+      </svg>
+    </div>
+
+    <div class="relative text-center px-4 max-w-lg mx-auto" data-reveal="up">
+      <!-- Yarn ball with unraveling trail -->
+      <div class="relative mx-auto w-28 h-28 mb-8">
+        <svg class="w-28 h-28 text-primary-bold animate-spin-slow" viewBox="0 0 120 120" fill="currentColor">
+          <circle cx="60" cy="60" r="44" opacity="0.15" />
+          <circle cx="60" cy="60" r="32" opacity="0.1" />
+          <circle cx="60" cy="60" r="20" opacity="0.2" />
+          <path d="M28 72c12-24 24-30 30-54M38 18c10 24 20 36 42 48" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.3" />
+        </svg>
+        <!-- Unraveling dashed trail -->
+        <svg class="absolute -bottom-6 -right-8 w-24 h-16 text-primary/40" viewBox="0 0 96 64" fill="none" aria-hidden="true">
+          <path
+            d="M0 8 C16 8, 16 24, 32 24 S48 40, 64 40 S80 56, 96 56"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-dasharray="6 4"
+            stroke-linecap="round"
+            class="animate-stitch"
+          />
+        </svg>
+      </div>
+
+      <h1 class="font-heading text-3xl sm:text-4xl font-bold text-text">
+        Oops, we dropped a stitch!
+      </h1>
+
+      <p class="mt-4 text-text-muted text-lg max-w-sm mx-auto leading-relaxed">
+        The page you're looking for seems to have unraveled. Let's get you back on track.
+      </p>
+
+      <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <Button href="/" variant="primary" size="lg">
+          Back to Home
+        </Button>
+        <Button href="/gallery/" variant="secondary" size="lg">
+          Browse Gallery
+        </Button>
+      </div>
+    </div>
+  </section>
+</Layout>

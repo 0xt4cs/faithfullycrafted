@@ -1,0 +1,51 @@
+---
+interface Props {
+  variant?: 'primary' | 'secondary' | 'ghost';
+  href?: string;
+  size?: 'sm' | 'md' | 'lg';
+  class?: string;
+  external?: boolean;
+}
+
+const { variant = 'primary', href, size = 'md', class: className = '', external = false } = Astro.props;
+
+const sizes = {
+  sm: 'px-4 py-2 text-sm',
+  md: 'px-6 py-3 text-base',
+  lg: 'px-8 py-4 text-lg',
+};
+
+const variants = {
+  primary:
+    'bg-primary-bold text-[#ffffff] hover:bg-[#d4568a] shadow-lg shadow-primary/30 shimmer-gold',
+  secondary:
+    'bg-surface text-primary-bold border-2 border-primary hover:bg-primary/10 shimmer-gold',
+  ghost:
+    'text-primary-bold hover:bg-primary/10',
+};
+
+const base = [
+  'inline-flex items-center justify-center gap-2 font-heading font-semibold rounded-2xl',
+  'transition-all duration-200',
+  'active:scale-95 focus-visible:ring-2 focus-visible:ring-primary-bold focus-visible:ring-offset-2',
+  'min-h-[48px]',
+  sizes[size],
+  variants[variant],
+  className,
+].join(' ');
+
+const isLink = !!href;
+const externalAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+
+{
+  isLink ? (
+    <a href={href} class={base} {...externalAttrs}>
+      <slot />
+    </a>
+  ) : (
+    <button class={base}>
+      <slot />
+    </button>
+  )
+}

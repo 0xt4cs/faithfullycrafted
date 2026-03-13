@@ -1,0 +1,341 @@
+<div
+  id="lightbox"
+  class="fixed inset-0 z-[100] bg-text/85 backdrop-blur-md flex items-center justify-center
+         opacity-0 pointer-events-none transition-opacity duration-300"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Image viewer"
+>
+  <!-- Progress bar (Instagram Stories-style) -->
+  <div id="lightbox-progress" class="absolute top-3 left-3 right-14 flex gap-1 z-20"></div>
+
+  <!-- Top-right controls -->
+  <div class="absolute top-3 right-3 flex items-center gap-2 z-20">
+    <button
+      id="lightbox-pause"
+      class="w-9 h-9 flex items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors"
+      aria-label="Pause slideshow"
+    >
+      <svg id="pause-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+        <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+        <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+      </svg>
+      <svg id="play-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M8 5v14l11-7z"></path>
+      </svg>
+    </button>
+    <button
+      id="lightbox-close"
+      class="w-9 h-9 flex items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors"
+      aria-label="Close"
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Prev/Next -->
+  <button
+    id="lightbox-prev"
+    class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/25 transition-colors z-10"
+    aria-label="Previous image"
+  >
+    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
+    </svg>
+  </button>
+  <button
+    id="lightbox-next"
+    class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/25 transition-colors z-10"
+    aria-label="Next image"
+  >
+    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
+    </svg>
+  </button>
+
+  <!-- Image (transition-opacity for crossfade) -->
+  <img
+    id="lightbox-img"
+    class="max-w-[90vw] max-h-[80vh] object-contain rounded-2xl shadow-2xl transition-opacity duration-200 ease-in-out"
+    src=""
+    alt=""
+  />
+
+  <!-- Caption -->
+  <p
+    id="lightbox-caption"
+    class="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/90 text-sm text-center max-w-md px-4 line-clamp-2
+           transition-opacity duration-200"
+  >
+  </p>
+</div>
+
+<script>
+  interface LightboxImage {
+    src: string;
+    alt: string;
+    caption: string;
+  }
+
+  let images: LightboxImage[] = [];
+  let currentIndex = 0;
+  let touchStartX = 0;
+
+  const AUTOPLAY_DURATION = 4;
+  let autoplayInterval: ReturnType<typeof setInterval> | null = null;
+  let autoplayProgress = 0;
+  let isPaused = false;
+  let isOpen = false;
+  let isFading = false;
+
+  function initLightbox() {
+    const lightbox = document.getElementById('lightbox')!;
+    const img = document.getElementById('lightbox-img') as HTMLImageElement;
+    const caption = document.getElementById('lightbox-caption')!;
+    const closeBtn = document.getElementById('lightbox-close')!;
+    const prevBtn = document.getElementById('lightbox-prev')!;
+    const nextBtn = document.getElementById('lightbox-next')!;
+    const pauseBtn = document.getElementById('lightbox-pause')!;
+    const pauseIcon = document.getElementById('pause-icon')!;
+    const playIcon = document.getElementById('play-icon')!;
+    const progressContainer = document.getElementById('lightbox-progress')!;
+
+    function buildProgressBar() {
+      progressContainer.innerHTML = '';
+      images.forEach((_, i) => {
+        const segment = document.createElement('div');
+        segment.className = 'flex-1 h-[3px] bg-white/25 rounded-full overflow-hidden';
+        segment.dataset.segmentIndex = String(i);
+        const fill = document.createElement('div');
+        fill.className = 'h-full bg-white/90 rounded-full';
+        fill.style.width = '0%';
+        fill.style.transition = 'width 950ms linear';
+        segment.appendChild(fill);
+        progressContainer.appendChild(segment);
+      });
+    }
+
+    function updateProgressBar() {
+      const segments = progressContainer.querySelectorAll('[data-segment-index]');
+      segments.forEach((seg, i) => {
+        const fill = seg.firstElementChild as HTMLElement;
+        if (!fill) return;
+        if (i < currentIndex) {
+          fill.style.transition = 'none';
+          fill.style.width = '100%';
+        } else if (i === currentIndex) {
+          fill.style.transition = 'width 950ms linear';
+          fill.style.width = `${(autoplayProgress / AUTOPLAY_DURATION) * 100}%`;
+        } else {
+          fill.style.transition = 'none';
+          fill.style.width = '0%';
+        }
+      });
+    }
+
+    /** Crossfade: fade out image+caption, swap content, fade back in */
+    function crossfadeTo(newIndex: number, onDone?: () => void) {
+      if (isFading) return;
+      isFading = true;
+
+      img.style.opacity = '0';
+      caption.style.opacity = '0';
+
+      setTimeout(() => {
+        currentIndex = newIndex;
+        const item = images[currentIndex];
+        if (item) {
+          img.src = item.src;
+          img.alt = item.alt;
+          caption.textContent = item.caption;
+        }
+        prevBtn.style.display = currentIndex > 0 ? '' : 'none';
+        nextBtn.style.display = currentIndex < images.length - 1 ? '' : 'none';
+
+        // Fade in once the new image starts loading
+        img.style.opacity = '1';
+        caption.style.opacity = '1';
+        isFading = false;
+        if (onDone) onDone();
+      }, 220);
+    }
+
+    /** Instant update (no fade, used for initial open) */
+    function updateInstant() {
+      const item = images[currentIndex];
+      if (!item) return;
+      img.style.opacity = '1';
+      caption.style.opacity = '1';
+      img.src = item.src;
+      img.alt = item.alt;
+      caption.textContent = item.caption;
+      prevBtn.style.display = currentIndex > 0 ? '' : 'none';
+      nextBtn.style.display = currentIndex < images.length - 1 ? '' : 'none';
+    }
+
+    function startAutoplay() {
+      stopAutoplay();
+      isPaused = false;
+      pauseIcon.classList.remove('hidden');
+      playIcon.classList.add('hidden');
+
+      autoplayInterval = setInterval(() => {
+        if (isFading) return;
+
+        autoplayProgress++;
+        updateProgressBar();
+
+        if (autoplayProgress >= AUTOPLAY_DURATION) {
+          if (currentIndex < images.length - 1) {
+            autoplayProgress = 0;
+            crossfadeTo(currentIndex + 1, () => {
+              updateProgressBar();
+            });
+          } else {
+            stopAutoplay();
+            updateProgressBar();
+          }
+        }
+      }, 1000);
+    }
+
+    function stopAutoplay() {
+      if (autoplayInterval !== null) {
+        clearInterval(autoplayInterval);
+        autoplayInterval = null;
+      }
+    }
+
+    function togglePause() {
+      if (isPaused) {
+        startAutoplay();
+      } else {
+        stopAutoplay();
+        isPaused = true;
+        pauseIcon.classList.add('hidden');
+        playIcon.classList.remove('hidden');
+      }
+    }
+
+    function open(index: number) {
+      isOpen = true;
+      currentIndex = index;
+      autoplayProgress = 0;
+      buildProgressBar();
+      updateInstant();
+      updateProgressBar();
+      lightbox.classList.remove('opacity-0', 'pointer-events-none');
+      lightbox.classList.add('opacity-100', 'pointer-events-auto');
+      document.body.style.overflow = 'hidden';
+      startAutoplay();
+    }
+
+    function close() {
+      isOpen = false;
+      stopAutoplay();
+      lightbox.classList.add('opacity-0', 'pointer-events-none');
+      lightbox.classList.remove('opacity-100', 'pointer-events-auto');
+      document.body.style.overflow = '';
+    }
+
+    function prev() {
+      if (currentIndex > 0 && !isFading) {
+        autoplayProgress = 0;
+        crossfadeTo(currentIndex - 1, () => {
+          updateProgressBar();
+          if (!isPaused) startAutoplay();
+        });
+      }
+    }
+
+    function next() {
+      if (currentIndex < images.length - 1 && !isFading) {
+        autoplayProgress = 0;
+        crossfadeTo(currentIndex + 1, () => {
+          updateProgressBar();
+          if (!isPaused) startAutoplay();
+        });
+      }
+    }
+
+    closeBtn.addEventListener('click', close);
+    prevBtn.addEventListener('click', prev);
+    nextBtn.addEventListener('click', next);
+    pauseBtn.addEventListener('click', togglePause);
+
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) close();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!isOpen) return;
+      if (e.key === 'Escape') close();
+      if (e.key === 'ArrowLeft') prev();
+      if (e.key === 'ArrowRight') next();
+      if (e.key === ' ') {
+        e.preventDefault();
+        togglePause();
+      }
+    });
+
+    // Touch swipe
+    lightbox.addEventListener(
+      'touchstart',
+      (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      },
+      { passive: true },
+    );
+    lightbox.addEventListener(
+      'touchend',
+      (e) => {
+        const diff = touchStartX - e.changedTouches[0].screenX;
+        if (Math.abs(diff) > 50) {
+          if (diff > 0) next();
+          else prev();
+        }
+      },
+      { passive: true },
+    );
+
+    // Pause on tab hidden, resume on visible
+    document.addEventListener('visibilitychange', () => {
+      if (!isOpen) return;
+      if (document.hidden) {
+        stopAutoplay();
+      } else if (!isPaused) {
+        startAutoplay();
+      }
+    });
+
+    // Register gallery images
+    function registerImages() {
+      images = [];
+      document.querySelectorAll('[data-lightbox]').forEach((el, i) => {
+        const imgEl = el as HTMLElement;
+        images.push({
+          src: imgEl.dataset.lightboxSrc || '',
+          alt: imgEl.dataset.lightboxAlt || '',
+          caption: imgEl.dataset.lightboxCaption || '',
+        });
+        imgEl.addEventListener('click', () => open(i));
+        imgEl.style.cursor = 'zoom-in';
+      });
+    }
+
+    registerImages();
+
+    (window as any).reinitLightbox = () => {
+      registerImages();
+      if (isOpen) buildProgressBar();
+    };
+  }
+
+  initLightbox();
+  document.addEventListener('astro:after-swap', () => {
+    images = [];
+    initLightbox();
+  });
+</script>

@@ -1,0 +1,106 @@
+---
+import type { GalleryItem } from '@typedefs/index';
+
+interface Props {
+  items: GalleryItem[];
+}
+
+const { items } = Astro.props;
+const featured = items.slice(0, 6);
+---
+
+<section class="py-16 sm:py-20 bg-background" aria-label="Latest creations">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12" data-reveal="up">
+      <h2 class="font-heading text-3xl sm:text-4xl font-700 text-text">Latest Creations</h2>
+      <p class="mt-3 text-text-muted max-w-md mx-auto">
+        Each piece is handcrafted with care — from cozy amigurumi to one-of-a-kind gifts.
+      </p>
+    </div>
+
+    <!-- Mobile: horizontal scroll carousel -->
+    <div class="md:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 px-4 pb-4">
+      <div class="flex gap-4" style="width: max-content;">
+        {
+          featured.map((item, i) => (
+            <div
+              class="snap-center flex-shrink-0 w-[280px]"
+              data-reveal="up"
+              data-reveal-delay={String(i * 100)}
+            >
+              <div
+                class="group relative rounded-2xl overflow-hidden bg-surface shadow-md shadow-primary/5 transition-all duration-300"
+                data-lightbox
+                data-lightbox-src={item.imageUrl}
+                data-lightbox-alt={item.caption}
+                data-lightbox-caption={item.caption}
+              >
+                <div class="skeleton-shimmer h-[320px]">
+                  <img
+                    src={item.imageUrl}
+                    alt={item.caption}
+                    loading="lazy"
+                    class="w-full h-[320px] object-cover relative z-[1]"
+                  />
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-text/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div class="absolute bottom-0 left-0 right-0 p-4">
+                    <p class="text-white text-sm line-clamp-2">{item.caption}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- Tablet+: Grid -->
+    <div class="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {
+        featured.map((item, i) => (
+          <div
+            data-reveal="up"
+            data-reveal-delay={String(i * 100)}
+          >
+            <div
+              class="group relative rounded-2xl overflow-hidden bg-surface shadow-md shadow-primary/5
+                     transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/15"
+              data-lightbox
+              data-lightbox-src={item.imageUrl}
+              data-lightbox-alt={item.caption}
+              data-lightbox-caption={item.caption}
+            >
+              <div class="overflow-hidden skeleton-shimmer h-[320px]">
+                <img
+                  src={item.imageUrl}
+                  alt={item.caption}
+                  loading="lazy"
+                  class="w-full h-[320px] object-cover transition-transform duration-500 group-hover:scale-105 relative z-[1]"
+                />
+              </div>
+              <div class="mouse-only absolute inset-0 bg-gradient-to-t from-text/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div class="absolute bottom-0 left-0 right-0 p-4">
+                  <p class="text-white text-sm line-clamp-2">{item.caption}</p>
+                  <p class="text-white/70 text-xs mt-1">{item.date}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="text-center mt-10" data-reveal="fade">
+      <a
+        href="/gallery/"
+        class="inline-flex items-center gap-2 font-heading font-600 text-primary-bold hover:text-lavender transition-colors"
+      >
+        See all creations
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,72 @@
+---
+import Button from '@components/ui/Button.astro';
+import SocialIcon from '@components/ui/SocialIcon.astro';
+import { SITE, SOCIALS } from '@lib/constants';
+---
+
+<section class="py-16 sm:py-20 bg-background" aria-label="Contact information">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12" data-reveal="up">
+      <h2 class="font-heading text-3xl sm:text-4xl font-700 text-text">Let's Connect</h2>
+      <p class="mt-3 text-text-muted max-w-md mx-auto">
+        Have a question, want to order, or just want to say hi? I'd love to hear from you!
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Messenger CTA -->
+      <div
+        class="bg-surface rounded-3xl p-8 text-center shadow-md shadow-primary/5 border border-primary/10 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+        data-reveal="left"
+      >
+        <div class="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
+          <svg class="w-8 h-8 text-primary-bold" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8.2l3.131 3.259L19.752 8.2l-6.561 6.763z" />
+          </svg>
+        </div>
+        <h3 class="font-heading font-700 text-xl text-text">Message Me</h3>
+        <p class="mt-2 text-text-muted text-sm">
+          The fastest way to reach me! Send a message on Facebook Messenger for orders and inquiries.
+        </p>
+        <Button href={SOCIALS.facebook.messenger} variant="primary" size="md" external class="mt-6">
+          Open Messenger
+        </Button>
+      </div>
+
+      <!-- Social & Email -->
+      <div
+        class="bg-surface rounded-3xl p-8 text-center shadow-md shadow-primary/5 border border-primary/10 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+        data-reveal="right"
+      >
+        <div class="w-16 h-16 mx-auto rounded-full bg-lavender/10 flex items-center justify-center mb-4">
+          <svg class="w-8 h-8 text-lavender" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <h3 class="font-heading font-700 text-xl text-text">Email & Socials</h3>
+        <a
+          href={`mailto:${SITE.email}`}
+          class="inline-block mt-2 text-primary-bold hover:text-lavender transition-colors text-sm break-all"
+        >
+          {SITE.email}
+        </a>
+
+        <div class="flex items-center justify-center gap-4 mt-6">
+          <SocialIcon platform="facebook" href={SOCIALS.facebook.url} />
+          <SocialIcon platform="instagram" href={SOCIALS.instagram.url} />
+          <SocialIcon platform="messenger" href={SOCIALS.facebook.messenger} />
+        </div>
+
+        <address class="mt-6 pt-4 border-t border-primary/10 not-italic">
+          <p class="text-text-muted text-xs flex items-center justify-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            {SITE.location}
+          </p>
+        </address>
+      </div>
+    </div>
+  </div>
+</section>

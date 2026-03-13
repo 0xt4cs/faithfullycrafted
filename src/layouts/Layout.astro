@@ -1,0 +1,51 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import SEOHead from '@components/layout/SEOHead.astro';
+import Header from '@components/layout/Header.astro';
+import Footer from '@components/layout/Footer.astro';
+import ScrollReveal from '@components/interactive/ScrollReveal.astro';
+import Lightbox from '@components/interactive/Lightbox.astro';
+import type { SEOProps } from '@typedefs/index';
+import { generateLocalBusinessSchema } from '@lib/seo';
+import '@styles/global.css';
+
+interface Props extends SEOProps {
+  jsonLd?: Record<string, unknown>;
+}
+
+const { jsonLd, ...seoProps } = Astro.props;
+const structuredData = jsonLd ?? generateLocalBusinessSchema();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#F4B8C8" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Faith" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preload" href="/fonts/quicksand-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/dancing-script-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <SEOHead {...seoProps} />
+    <ClientRouter />
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  </head>
+  <body class="min-h-screen flex flex-col overflow-x-hidden">
+    <Header />
+    <main class="flex-1" transition:animate="fade">
+      <slot />
+    </main>
+    <Footer />
+    <ScrollReveal />
+    <!-- Lightbox at body root level, outside <main> to avoid stacking context trap from View Transitions -->
+    <Lightbox />
+  </body>
+</html>

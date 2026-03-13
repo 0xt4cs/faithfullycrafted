@@ -1,0 +1,43 @@
+<script>
+  function initScrollReveal() {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      document
+        .querySelectorAll('[data-reveal], [data-reveal-sm], [data-reveal-md]')
+        .forEach((el) => {
+          (el as HTMLElement).style.opacity = '1';
+        });
+      return;
+    }
+
+    const isMobile = window.innerWidth < 768;
+
+    // Resolve responsive direction attributes into data-reveal
+    document.querySelectorAll('[data-reveal-sm], [data-reveal-md]').forEach((el) => {
+      const htmlEl = el as HTMLElement;
+      if (!htmlEl.dataset.reveal) {
+        const dir = isMobile ? htmlEl.dataset.revealSm : htmlEl.dataset.revealMd;
+        if (dir) htmlEl.setAttribute('data-reveal', dir);
+      }
+    });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement;
+            const delay = parseInt(el.dataset.revealDelay || '0', 10);
+            setTimeout(() => el.classList.add('revealed'), delay);
+            observer.unobserve(el);
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' },
+    );
+
+    document.querySelectorAll('[data-reveal]:not(.revealed)').forEach((el) => observer.observe(el));
+  }
+
+  initScrollReveal();
+  document.addEventListener('astro:after-swap', initScrollReveal);
+</script>

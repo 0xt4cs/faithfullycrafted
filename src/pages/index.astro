@@ -1,0 +1,20 @@
+---
+import Layout from '@layouts/Layout.astro';
+import Hero from '@components/sections/Hero.astro';
+import FeaturedWorks from '@components/sections/FeaturedWorks.astro';
+import AboutSnippet from '@components/sections/AboutSnippet.astro';
+import CTABanner from '@components/sections/CTABanner.astro';
+import Divider from '@components/ui/Divider.astro';
+import { getGalleryItems } from '@lib/facebook';
+
+const items = await getGalleryItems();
+---
+
+<Layout>
+  <Hero />
+  <FeaturedWorks items={items} />
+  <Divider />
+  <AboutSnippet />
+  <Divider />
+  <CTABanner />
+</Layout>
