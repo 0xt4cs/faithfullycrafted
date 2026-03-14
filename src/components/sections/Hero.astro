@@ -69,15 +69,33 @@ import { SITE, SOCIALS } from '@lib/constants';
 
       <!-- Decorative Mascot Area -->
       <div class="flex-shrink-0 relative" data-reveal="scale">
-        <div class="w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 rounded-full bg-gradient-to-br from-primary/20 via-surface to-lavender/20 flex items-center justify-center shadow-xl shadow-primary/10">
-          <div class="text-center p-8">
-            <svg class="w-24 h-24 sm:w-32 sm:h-32 mx-auto text-primary-bold animate-spin-slow" viewBox="0 0 100 100" fill="currentColor">
-              <circle cx="50" cy="50" r="40" opacity="0.15" />
-              <circle cx="50" cy="50" r="30" opacity="0.1" />
-              <circle cx="50" cy="50" r="20" fill="currentColor" opacity="0.2" />
-              <path d="M25 60c10-20 20-25 25-45M35 15c8 20 17 30 35 40" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.3" />
-            </svg>
-            <p class="mt-4 font-brand text-primary-bold text-xl sm:text-2xl">by Faith</p>
+        <div class="w-full max-w-sm mx-auto group perspective-1000">
+          <div class="relative w-64 sm:w-80 lg:w-96 mx-auto">
+            <!-- Decorative background layers -->
+            <div class="absolute inset-0 bg-primary/20 rounded-3xl translate-x-3 translate-y-3 sm:translate-x-5 sm:translate-y-5 rotate-3 transition-transform duration-500 ease-out group-hover:translate-x-6 group-hover:translate-y-6 group-hover:rotate-6 shadow-sm"></div>
+            <div class="absolute inset-0 bg-gold/20 rounded-3xl -translate-x-2 -translate-y-2 sm:-translate-x-4 sm:-translate-y-4 -rotate-2 transition-transform duration-500 ease-out group-hover:-translate-x-5 group-hover:-translate-y-5 group-hover:-rotate-4 shadow-sm"></div>
+            
+            <!-- Main Photo Frame -->
+            <div class="relative w-full bg-body p-3 sm:p-5 rounded-3xl shadow-xl shadow-primary/10 rotate-[2deg] transition-transform duration-500 ease-out group-hover:rotate-0 border border-surface flex flex-col z-10 box-border bg-white">
+              <!-- Diagonal Washi Tape -->
+              <div class="absolute -top-4 right-8 w-24 h-6 bg-lavender/60 border border-white/40 shadow-sm rotate-[10deg] z-20 backdrop-blur-md opacity-90" style="clip-path: polygon(4% 5%, 96% 2%, 98% 95%, 2% 98%);"></div>
+
+              <!-- Picture -->
+              <div class="relative aspect-square sm:aspect-square rounded-2xl overflow-hidden bg-surface shadow-inner">
+                <img
+                  src="/faith.jpg"
+                  alt="Crafting pieces by Faith"
+                  class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  loading="eager"
+                />
+                <div class="absolute inset-0 border border-black/5 rounded-2xl pointer-events-none mix-blend-overlay"></div>
+              </div>
+              
+              <!-- Frame Caption -->
+              <div class="pt-5 pb-2 text-center pointer-events-none">
+                <span class="font-brand text-3xl sm:text-4xl text-primary-bold/90 drop-shadow-sm">by Faith</span>
+              </div>
+            </div>
           </div>
         </div>
         <!-- Floating mini yarn balls -->

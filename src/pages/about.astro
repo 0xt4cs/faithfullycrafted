@@ -12,13 +12,14 @@ import { SITE, SOCIALS } from '@lib/constants';
   <!-- Page Header -->
   <header class="pt-12 sm:pt-16 pb-8">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <h1
-        class="font-heading text-4xl sm:text-5xl font-700 text-text"
-        data-reveal="up"
-      >
+      <h1 class="font-heading text-4xl sm:text-5xl font-700 text-text" data-reveal="up">
         About <span class="font-brand text-primary-bold">{SITE.crafter}</span>
       </h1>
-      <p class="mt-4 text-text-muted text-lg max-w-lg mx-auto" data-reveal="up" data-reveal-delay="100">
+      <p
+        class="mt-4 text-text-muted text-lg max-w-lg mx-auto"
+        data-reveal="up"
+        data-reveal-delay="100"
+      >
         The heart and hands behind every stitch
       </p>
     </div>
@@ -28,15 +29,31 @@ import { SITE, SOCIALS } from '@lib/constants';
   <article class="pb-16 sm:pb-20">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
-        <!-- Photo placeholder -->
-        <div class="flex-shrink-0" data-reveal="left">
-          <div class="w-64 h-64 sm:w-80 sm:h-80 rounded-3xl bg-gradient-to-br from-primary/15 via-cream to-lavender/15 flex items-center justify-center shadow-xl shadow-primary/10 overflow-hidden">
-            <div class="text-center p-6">
-              <svg class="w-24 h-24 mx-auto text-primary-bold/30" viewBox="0 0 80 80" fill="currentColor">
-                <circle cx="40" cy="28" r="16" />
-                <path d="M15 68c0-14 11-24 25-24s25 10 25 24" />
-              </svg>
-              <p class="mt-3 text-sm text-text-muted italic">Faith's photo coming soon</p>
+        <div class="flex-shrink-0 group perspective-1000" data-reveal="left">
+          <div class="relative w-64 sm:w-80 mx-auto">
+            <!-- Decorative background layers -->
+            <div class="absolute inset-0 bg-primary/20 rounded-3xl translate-x-3 translate-y-3 sm:translate-x-4 sm:translate-y-4 -rotate-3 transition-transform duration-500 ease-out group-hover:translate-x-5 group-hover:translate-y-6 group-hover:-rotate-6 shadow-sm"></div>
+            <div class="absolute inset-0 bg-lavender/30 rounded-3xl -translate-x-2 -translate-y-2 sm:-translate-x-3 sm:-translate-y-3 rotate-2 transition-transform duration-500 ease-out group-hover:-translate-x-4 group-hover:-translate-y-5 group-hover:rotate-4 shadow-sm"></div>
+            
+            <!-- Main Photo Frame -->
+            <div class="relative w-full bg-body p-3 sm:p-4 rounded-3xl shadow-xl shadow-primary/10 rotate-[-1deg] transition-transform duration-500 ease-out group-hover:rotate-0 border border-surface flex flex-col z-10 box-border bg-white">
+              <!-- Washi Tape piece -->
+              <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-20 h-5 bg-white/70 border border-white/40 shadow-sm -rotate-2 z-20 backdrop-blur-md opacity-90" style="clip-path: polygon(2% 10%, 98% 0%, 100% 90%, 0% 100%);"></div>
+
+              <div class="relative aspect-square sm:aspect-square rounded-2xl overflow-hidden bg-surface shadow-inner">
+                <img
+                  src="/faith.jpg"
+                  alt="Faith, the crafter behind Faithfully Crafted"
+                  class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  loading="eager"
+                />
+                <div class="absolute inset-0 border border-black/5 rounded-2xl pointer-events-none mix-blend-overlay"></div>
+              </div>
+              
+              <!-- Frame Caption -->
+              <div class="pt-4 pb-2 text-center pointer-events-none">
+                <span class="font-brand text-2xl sm:text-3xl text-primary-bold/90 drop-shadow-sm">The face behind the craft</span>
+              </div>
             </div>
           </div>
         </div>
@@ -45,21 +62,31 @@ import { SITE, SOCIALS } from '@lib/constants';
         <div class="flex-1 space-y-5" data-reveal="right">
           <h2 class="font-heading text-2xl sm:text-3xl font-700 text-text">My Story</h2>
           <p class="text-text-muted leading-relaxed">
-            It all started with a single ball of yarn and a YouTube tutorial. What began as a
-            curiosity quickly became a deep passion — I found peace, purpose, and joy in every
-            loop and stitch. Before I knew it, friends and family were asking me to make pieces
-            for them, and <strong class="text-text">Faithfully Crafted</strong> was born.
+            It all started with a gift — a set of crochet hooks from my boyfriend, because I kept
+            asking for them. I wanted to try something new, and he believed in me enough to say "go
+            for it." My very first creation was a little bee, and I remember being so proud of it,
+            showing it to my friends, my mom, and my brothers.
           </p>
           <p class="text-text-muted leading-relaxed">
-            The name carries a special meaning — "Faith" is my name, and everything I create is
-            made <em>faithfully</em>, with dedication, love, and attention to every tiny detail.
-            Whether it's a cute amigurumi character, a cozy accessory, or a heartfelt custom
-            gift, I pour my heart into each and every creation.
+            What began as a spontaneous hobby quickly grew into something more. Friends started
+            pushing me to sell my pieces, even though I was still a beginner. I thought about it,
+            took a deep breath, and went for it — and
+            <strong class="text-text">Faithfully Crafted</strong> was born. The name carries a special
+            meaning: "Faith" is my name, and everything I make is crafted
+            <em>faithfully</em>, with love and care in every single stitch.
           </p>
           <p class="text-text-muted leading-relaxed">
-            Based in {SITE.location}, I work from my little crafting corner, turning colorful
-            yarn into pieces that bring smiles. I believe that handmade gifts carry something
-            special — a warmth that mass-produced items simply can't match.
+            I wouldn't be here without my family. My mom buys yarn whenever I need it, my brothers
+            got me stands and hooks without ever being asked twice — just pure support, no
+            questions, nothing expected in return. And my boyfriend, who started all of this with
+            that first gift, has been my biggest cheerleader from day one.
+          </p>
+          <p class="text-text-muted leading-relaxed">
+            Faithfully Crafted celebrated its first anniversary in December 2025, and I still can't
+            believe how far this little hobby has come. Based in {SITE.location}, I work from my
+            crafting corner turning colorful yarn into amigurumi, keychains, accessories, and custom
+            gifts that bring smiles. I believe handmade creations carry something special — a warmth
+            and love that you just can't find anywhere else.
           </p>
         </div>
       </div>
@@ -69,38 +96,77 @@ import { SITE, SOCIALS } from '@lib/constants';
       <!-- Process Section -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="text-center" data-reveal="up" data-reveal-delay="0">
-          <div class="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-            <svg class="w-8 h-8 text-primary-bold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          <div
+            class="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-4"
+          >
+            <svg
+              class="w-8 h-8 text-primary-bold"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+              ></path>
             </svg>
           </div>
           <h3 class="font-heading font-700 text-lg text-text">Imagine</h3>
           <p class="mt-2 text-text-muted text-sm">
-            Every piece starts with an idea — whether it's your vision or mine, we dream it up together.
+            Every piece starts with an idea — whether it's your vision or mine, we dream it up
+            together.
           </p>
         </div>
 
         <div class="text-center" data-reveal="up" data-reveal-delay="150">
-          <div class="w-16 h-16 mx-auto rounded-2xl bg-lavender/10 flex items-center justify-center mb-4">
-            <svg class="w-8 h-8 text-lavender" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          <div
+            class="w-16 h-16 mx-auto rounded-2xl bg-lavender/10 flex items-center justify-center mb-4"
+          >
+            <svg
+              class="w-8 h-8 text-lavender"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              ></path>
             </svg>
           </div>
           <h3 class="font-heading font-700 text-lg text-text">Create</h3>
           <p class="mt-2 text-text-muted text-sm">
-            Hook in hand, I bring it to life stitch by stitch — with patience, love, and the perfect yarn.
+            Hook in hand, I bring it to life stitch by stitch — with patience, love, and the perfect
+            yarn.
           </p>
         </div>
 
         <div class="text-center" data-reveal="up" data-reveal-delay="300">
-          <div class="w-16 h-16 mx-auto rounded-2xl bg-mint/10 flex items-center justify-center mb-4">
-            <svg class="w-8 h-8 text-mint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+          <div
+            class="w-16 h-16 mx-auto rounded-2xl bg-mint/10 flex items-center justify-center mb-4"
+          >
+            <svg
+              class="w-8 h-8 text-mint"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
+              ></path>
             </svg>
           </div>
           <h3 class="font-heading font-700 text-lg text-text">Deliver</h3>
           <p class="mt-2 text-text-muted text-sm">
-            Wrapped with care and ready to bring joy — your handmade treasure, delivered to your doorstep.
+            Wrapped with care and ready to bring joy — your handmade treasure, delivered to your
+            doorstep.
           </p>
         </div>
       </div>
@@ -109,16 +175,12 @@ import { SITE, SOCIALS } from '@lib/constants';
 
       <!-- CTA -->
       <div class="text-center" data-reveal="scale">
-        <p class="text-text-muted text-lg mb-6">
-          Want something made just for you?
-        </p>
+        <p class="text-text-muted text-lg mb-6">Want something made just for you?</p>
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Button href={SOCIALS.facebook.messenger} variant="primary" size="lg" external>
             Let's create together
           </Button>
-          <Button href="/gallery/" variant="secondary" size="lg">
-            Browse my work
-          </Button>
+          <Button href="/gallery/" variant="secondary" size="lg"> Browse my work </Button>
         </div>
       </div>
     </div>

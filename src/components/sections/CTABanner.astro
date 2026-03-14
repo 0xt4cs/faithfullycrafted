@@ -3,30 +3,40 @@ import Button from '@components/ui/Button.astro';
 import { SOCIALS } from '@lib/constants';
 ---
 
-<section class="py-16 sm:py-20 relative overflow-hidden" aria-label="Custom order call to action">
+<section class="py-16 sm:py-24 relative overflow-hidden" aria-label="Custom order call to action">
   <!-- Watercolor background effect -->
-  <div class="absolute inset-0 bg-gradient-to-r from-primary/10 via-lavender/10 to-mint/10" aria-hidden="true"></div>
-  <div class="absolute top-0 left-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl" aria-hidden="true"></div>
-  <div class="absolute bottom-0 right-1/4 w-48 h-48 bg-lavender/5 rounded-full blur-3xl" aria-hidden="true"></div>
+  <div class="absolute inset-0 bg-gradient-to-br from-cream/40 via-surface to-lavender/30" aria-hidden="true"></div>
+  <div class="absolute top-0 right-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-float" aria-hidden="true"></div>
+  <div class="absolute bottom-0 left-1/4 w-48 h-48 bg-mint/10 rounded-full blur-3xl animate-float-delayed" aria-hidden="true"></div>
 
-  <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center" data-reveal="scale">
-    <h2 class="font-heading text-3xl sm:text-4xl font-700 text-text">
-      Want a custom piece?
-    </h2>
-    <p class="mt-4 text-text-muted text-lg max-w-md mx-auto">
-      I'd love to create something special just for you. Reach out and let's bring your idea to
-      life, one stitch at a time.
-    </p>
-    <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-      <Button href={SOCIALS.facebook.messenger} variant="primary" size="lg" external>
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0z" />
-        </svg>
-        Message on Facebook
-      </Button>
-      <Button href={SOCIALS.instagram.url} variant="secondary" size="lg" external>
-        DM on Instagram
-      </Button>
+  <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center" data-reveal="scale">
+    <!-- Scrapbook Paper Container -->
+    <div class="relative bg-white p-8 sm:p-14 shadow-xl shadow-primary/10 mx-auto transform -rotate-1 hover:rotate-0 transition-transform duration-500 max-w-3xl" style="clip-path: polygon(1% 0, 99% 1%, 100% 98%, 0% 100%);">
+      
+      <!-- Washi Tape -->
+      <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-32 h-6 bg-lavender/40 border border-white/50 shadow-sm rotate-2 z-20 backdrop-blur-md" style="clip-path: polygon(0% 10%, 100% 0%, 98% 90%, 2% 100%);"></div>
+
+      <!-- Content -->
+      <div class="relative z-10">
+        <h2 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-700 text-text">
+          Want a custom piece?
+        </h2>
+        <p class="mt-4 text-text-muted text-lg max-w-md mx-auto">
+          I'd love to create something special just for you. Reach out and let's bring your idea to
+          life, one stitch at a time.
+        </p>
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Button href={SOCIALS.facebook.messenger} variant="primary" size="lg" external>
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0z" />
+            </svg>
+            Message on Facebook
+          </Button>
+          <Button href={SOCIALS.instagram.url} variant="secondary" size="lg" external>
+            DM on Instagram
+          </Button>
+        </div>
+      </div>
     </div>
   </div>
 </section>

@@ -1,8 +1,8 @@
 @media (hover: hover) and (pointer: fine) {
   body {
     cursor:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23E8669A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15.5 2.5L9 9l-2.5 7L14 13.5l6.5-6.5'/%3E%3Cpath d='M6.5 16L2 22'/%3E%3C/svg%3E")
-        2 22,
+      url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 8L22 13.5L14.5 16.5L11.5 25L7 8Z' fill='%23e8669a' opacity='0.2'/%3E%3Cpath d='M6 6L21 11.5L13.5 14.5L10.5 23L6 6Z' fill='%23fff5f7' stroke='%23e8669a' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E")
+        6 6,
       auto;
   }
 
@@ -12,8 +12,8 @@
   input[type='submit'],
   .cursor-pointer {
     cursor:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23F4B8C8' stroke='%23E8669A' stroke-width='2'/%3E%3Cpath d='M8 14c1-2 3-3 4-6M12 8c1 3 3 4 4 6' stroke='%23E8669A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")
-        12 12,
+      url("data:image/svg+xml,%3Csvg width='36' height='36' viewBox='0 0 36 36' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='18' cy='11' r='5' fill='%23ffffff' stroke='%23c4b5d9' stroke-width='2.5'/%3E%3Ccircle cx='24.5' cy='15.5' r='5' fill='%23ffffff' stroke='%23c4b5d9' stroke-width='2.5'/%3E%3Ccircle cx='22' cy='23' r='5' fill='%23ffffff' stroke='%23c4b5d9' stroke-width='2.5'/%3E%3Ccircle cx='14' cy='23' r='5' fill='%23ffffff' stroke='%23c4b5d9' stroke-width='2.5'/%3E%3Ccircle cx='11.5' cy='15.5' r='5' fill='%23ffffff' stroke='%23c4b5d9' stroke-width='2.5'/%3E%3Ccircle cx='18' cy='18' r='4.5' fill='%23fcebd5' stroke='%23d4aa6a' stroke-width='2.5'/%3E%3C/svg%3E")
+        18 18,
       pointer;
   }
 }
