@@ -1,41 +1,33 @@
 # Redirect www to non-www
-
 https://www.faithfullycrafted.ph/* https://faithfullycrafted.ph/:splat 301
 
-# Redirect .shop domain to .ph
-
-https://faithfullycrafted.shop/_ https://faithfullycrafted.ph/:splat 301
-https://www.faithfullycrafted.shop/_ https://faithfullycrafted.ph/:splat 301
+# .shop to .ph redirect handled by Cloudflare Redirect Rules (edge-level, not here)
 
 # Common misspellings
-
-/gallary /gallery/ 301
-/gallary/ /gallery/ 301
-/galery /gallery/ 301
-/contact-us /contact/ 301
-/contact-us/ /contact/ 301
-/about-us /about/ 301
-/about-us/ /about/ 301
+/gallary     /gallery/   301
+/gallary/    /gallery/   301
+/galery      /gallery/   301
+/contact-us  /contact/   301
+/contact-us/ /contact/   301
+/about-us    /about/     301
+/about-us/   /about/     301
 
 # Common guesses
-
-/portfolio /gallery/ 301
-/portfolio/ /gallery/ 301
-/shop /gallery/ 301
-/shop/ /gallery/ 301
-/works /gallery/ 301
-/works/ /gallery/ 301
+/portfolio   /gallery/   301
+/portfolio/  /gallery/   301
+/shop        /gallery/   301
+/shop/       /gallery/   301
+/works       /gallery/   301
+/works/      /gallery/   301
 
 # Legal page aliases
-
-/privacy-policy /privacy/ 301
-/privacy-policy/ /privacy/ 301
-/tos /terms/ 301
-/tos/ /terms/ 301
-/terms-of-service /terms/ 301
+/privacy-policy   /privacy/   301
+/privacy-policy/  /privacy/   301
+/tos              /terms/     301
+/tos/             /terms/     301
+/terms-of-service /terms/     301
 
 # Social shortlinks
-
-/fb https://www.facebook.com/gingerchets/ 302
-/ig https://www.instagram.com/faithfully_crafted04 302
-/dm https://m.me/gingerchets 302
+/fb   https://www.facebook.com/gingerchets/               302
+/ig   https://www.instagram.com/faithfully_crafted04       302
+/dm   https://m.me/gingerchets                             302
