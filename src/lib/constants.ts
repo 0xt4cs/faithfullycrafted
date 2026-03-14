@@ -3,8 +3,8 @@ export const SITE = {
   tagline: 'Handcrafted with love, one stitch at a time',
   description:
     'Faithfully Crafted by Faith — beautiful handmade crochet creations from Caloocan, Philippines. Custom amigurumi, keychains, and gifts made with faith and love.',
-  url: 'https://faithfullycrafted.shop',
-  email: 'faith@faithfullycrafted.shop',
+  url: 'https://faithfullycrafted.ph',
+  email: 'faith@faithfullycrafted.ph',
   location: 'South Caloocan / Malabon, Philippines',
   crafter: 'Faith',
 } as const;

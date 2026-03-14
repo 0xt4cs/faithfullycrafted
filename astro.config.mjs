@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://faithfullycrafted.shop',
+  site: 'https://faithfullycrafted.ph',
   output: 'static',
   vite: {
     plugins: [tailwindcss()],
