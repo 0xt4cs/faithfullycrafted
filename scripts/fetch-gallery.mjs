@@ -28,16 +28,15 @@ async function loadEnv() {
   }
 }
 
-function hashUrl(url) {
-  return createHash('sha256').update(url).digest('hex').slice(0, 16);
+function stableHash(input) {
+  return createHash('sha256').update(input).digest('hex').slice(0, 16);
 }
 
-async function downloadImage(url) {
-  const hash = hashUrl(url);
-  const filename = `${hash}.jpg`;
+async function downloadImage(url, stableKey) {
+  const filename = `${stableHash(stableKey)}.jpg`;
   const localPath = join(GALLERY_DIR, filename);
 
-  if (existsSync(localPath)) return filename;
+  if (existsSync(localPath)) return { filename, status: 'cached' };
 
   try {
     const response = await fetch(url);
@@ -54,7 +53,7 @@ async function downloadImage(url) {
       await writeFile(localPath, rawBuffer);
     }
 
-    return filename;
+    return { filename, status: 'downloaded' };
   } catch {
     return null;
   }
@@ -82,13 +81,18 @@ async function main() {
     const response = await fetch(url);
     if (!response.ok) {
       console.error('[fetch-gallery] Facebook API request failed:', response.status);
-      return;
+      process.exit(1);
     }
     const data = await response.json();
     posts = data.data || [];
   } catch (err) {
     console.error('[fetch-gallery] Failed to fetch:', err.message);
-    return;
+    process.exit(1);
+  }
+
+  if (!Array.isArray(posts) || posts.length === 0) {
+    console.error('[fetch-gallery] Facebook API returned no posts. Aborting build.');
+    process.exit(1);
   }
 
   const postsWithImages = posts.filter((p) => p.full_picture);
@@ -101,11 +105,10 @@ async function main() {
   let cached = 0;
 
   for (const post of postsWithImages) {
-    const filename = await downloadImage(post.full_picture);
-    if (!filename) continue;
+    const result = await downloadImage(post.full_picture, post.id);
+    if (!result) continue;
 
-    const existed = existsSync(join(GALLERY_DIR, filename));
-    if (existed) cached++;
+    if (result.status === 'cached') cached++;
     else downloaded++;
 
     const attachment = post.attachments?.data?.[0];
@@ -113,13 +116,20 @@ async function main() {
 
     manifest.push({
       id: post.id,
-      filename,
+      filename: result.filename,
       caption: (post.message || '').slice(0, 200),
       date: post.created_time,
       permalink: post.permalink_url,
       width: media?.width || null,
       height: media?.height || null,
     });
+  }
+
+  if (manifest.length === 0) {
+    console.error(
+      '[fetch-gallery] No images could be downloaded. Aborting build to avoid deploying an empty gallery.',
+    );
+    process.exit(1);
   }
 
   await writeFile(MANIFEST_PATH, JSON.stringify(manifest, null, 2));

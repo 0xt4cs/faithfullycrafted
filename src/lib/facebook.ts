@@ -1,7 +1,9 @@
 import type { GalleryItem } from '@typedefs/index';
 import { readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
 
-const MANIFEST_PATH = 'public/gallery/_manifest.json';
+const GALLERY_DIR = 'public/gallery';
+const MANIFEST_PATH = join(GALLERY_DIR, '_manifest.json');
 
 interface ManifestEntry {
   id: string;
@@ -46,11 +48,32 @@ export async function getGalleryItems(): Promise<GalleryItem[]> {
   const manifest = readManifest();
 
   if (manifest.length === 0) {
-    console.warn('No gallery manifest found — using placeholder gallery. Run "node scripts/fetch-gallery.mjs" first.');
+    console.warn(
+      'No gallery manifest found — using placeholder gallery. Run "node scripts/fetch-gallery.mjs" first.',
+    );
     return getFallbackGallery();
   }
 
-  return manifest.map((entry) => ({
+  // Validate that the actual image files exist on disk.
+  // Protects against stale manifest pointing to missing JPGs after a failed FB fetch.
+  const validEntries = manifest.filter((entry) =>
+    existsSync(join(GALLERY_DIR, entry.filename)),
+  );
+
+  if (validEntries.length === 0) {
+    console.warn(
+      `Manifest has ${manifest.length} entries but none of the referenced JPGs exist on disk — falling back to placeholder gallery.`,
+    );
+    return getFallbackGallery();
+  }
+
+  if (validEntries.length < manifest.length) {
+    console.warn(
+      `Skipping ${manifest.length - validEntries.length} manifest entries with missing JPG files.`,
+    );
+  }
+
+  return validEntries.map((entry) => ({
     id: entry.id,
     imageUrl: `/gallery/${entry.filename}`,
     caption: sanitizeText(entry.caption),
