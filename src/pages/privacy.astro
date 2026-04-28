@@ -69,6 +69,23 @@ import { SITE, SOCIALS } from '@lib/constants';
       </section>
 
       <section data-reveal="up">
+        <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">AI-Powered Customer Support</h2>
+        <p class="text-text-muted leading-relaxed">
+          When you message us on Facebook Messenger, an AI assistant may respond to common questions
+          (such as shipping, materials, or lead time) to help you faster. Here is what you should know:
+        </p>
+        <ul class="list-disc list-inside text-text-muted mt-3 space-y-2">
+          <li>The AI clearly identifies itself as an AI assistant when asked.</li>
+          <li>You can request a human at any time by typing "talk to Faith" -- the bot will pause and Faith will reach out personally.</li>
+          <li>Your messages are processed by Google's Gemini API to generate the AI's responses.</li>
+          <li>The last few messages of your conversation (up to 8) are temporarily stored in Cloudflare KV to maintain context within a single chat session. Stored messages are automatically deleted after 7 days.</li>
+          <li>We do not use your messages for AI training or share them with any third party beyond what is necessary to generate a response.</li>
+          <li>Faith reviews all orders, custom requests, complaints, and partnership inquiries personally -- the AI never finalizes these.</li>
+          <li>The AI never quotes prices and never commits Faith to specific timelines; those are always confirmed by Faith directly.</li>
+        </ul>
+      </section>
+
+      <section data-reveal="up">
         <h2 class="font-heading text-2xl font-bold text-text mt-10 mb-4">External Links</h2>
         <p class="text-text-muted leading-relaxed">
           Our website contains links to external websites and services (Facebook, Instagram,
