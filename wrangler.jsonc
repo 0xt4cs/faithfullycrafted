@@ -3,5 +3,59 @@
   "name": "faithfullycrafted",
   "pages_build_output_dir": "dist",
   "compatibility_date": "2026-03-13",
-  "compatibility_flags": ["nodejs_compat"]
+  "compatibility_flags": ["nodejs_compat"],
+
+  // ── Bindings for functions/api/order.ts ──────────────────────────────────────
+  // Contract and setup notes: docs/order-endpoint.md
+  //
+  // ACTION REQUIRED before the next deploy: both ids below are placeholders.
+  // Create the namespaces once and paste the real ids in:
+  //   npx wrangler kv namespace create ORDER_RATELIMIT
+  //   npx wrangler kv namespace create ORDER_INBOX
+  // Leaving the placeholders in place makes the KV bindings unusable at runtime,
+  // and may fail `wrangler pages deploy` outright. That would take the order form
+  // down (and, if the deploy fails, the whole scheduled deploy with it) even
+  // though nothing else on the static site depends on these.
+  //
+  // ORDER_RATELIMIT — per-IP submission counter. Optional at runtime: if the
+  //   binding is absent the endpoint skips rate limiting instead of failing.
+  // ORDER_INBOX     — delivery fallback. Optional at runtime, but with no email
+  //   binding available on Pages (see below) it is currently the only delivery
+  //   path, so without it every submission answers 500.
+  // Commented out deliberately, NOT forgotten. A placeholder namespace id can
+  // fail `wrangler pages deploy` outright, and that same command deploys the
+  // whole site on the scheduled rebuild — so a broken id here would take the
+  // gallery down to fix a form. The site must never depend on unset infra.
+  //
+  // The order form is built to work without these: with no Turnstile site key
+  // configured at build time, /order/ composes the request into a prefilled
+  // Messenger message instead of posting to the API. Create the namespaces,
+  // paste the ids, uncomment, and set TURNSTILE_SECRET_KEY to switch it over.
+  //
+  // "kv_namespaces": [
+  //   { "binding": "ORDER_RATELIMIT", "id": "<paste id>" },
+  //   { "binding": "ORDER_INBOX", "id": "<paste id>" }
+  // ],
+
+  // ── SEND_EMAIL (Cloudflare Email Service) — intentionally NOT declared ───────
+  // `send_email` is not one of wrangler's supported configuration fields for
+  // Pages projects (verified against supportedPagesConfigFields in the installed
+  // wrangler 4.73.0, and absent from the Pages wrangler-configuration docs).
+  // Uncommenting the block below makes every `wrangler pages deploy` fail with:
+  //   Configuration file for Pages projects does not support "send_email"
+  // There is also no `--send-email` flag on `wrangler pages dev`, so the binding
+  // cannot be exercised locally either.
+  //
+  // functions/api/order.ts therefore detects the missing binding at runtime and
+  // writes submissions to ORDER_INBOX instead. To get real email either move the
+  // endpoint to a standalone Worker (where this block is valid as written) or
+  // attach the binding from the Pages dashboard if Cloudflare exposes it there.
+  //
+  // "send_email": [
+  //   { "name": "SEND_EMAIL", "destination_address": "a real inbox once a domain exists" }
+  // ]
+
+  // ── Secrets ─────────────────────────────────────────────────────────────────
+  // TURNSTILE_SECRET_KEY is never stored in this file. Set it with:
+  //   npx wrangler pages secret put TURNSTILE_SECRET_KEY --project-name=faithfullycrafted
 }

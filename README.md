@@ -123,17 +123,22 @@ npx wrangler pages deploy dist
 
 ### CI/CD
 
-Two deployment pipelines work together without overlap:
+Three pipelines, described in full in [`docs/deployment.md`](docs/deployment.md):
 
 - **Cloudflare Pages (auto)** -- builds and deploys on every push to `main`. Handles code changes.
-- **GitHub Actions (scheduled)** -- rebuilds every 3 days to pick up new Facebook posts. Also has a manual "Run workflow" button for instant refresh.
+- **Cloudflare cron Worker** (`cron-worker/`) -- the primary scheduled rebuild. Every 3 days it fires a Pages Deploy Hook to pick up new Facebook posts. Lives on Cloudflare because GitHub disables cron-triggered workflows after 60 days of repository inactivity.
+- **GitHub Actions** (`.github/workflows/deploy.yml`) -- escape hatch with a manual "Run workflow" button, plus its own 3-day schedule. Caches downloaded gallery images and commits the refreshed manifest back to the repo.
 
-The GitHub Actions workflow at `.github/workflows/deploy.yml` requires these repository secrets:
+Repository secrets required by `.github/workflows/deploy.yml`:
 
 - `FB_PAGE_ID`
 - `FB_ACCESS_TOKEN`
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
+
+`FB_PAGE_ID` and `FB_ACCESS_TOKEN` must **also** be set as environment variables on the Cloudflare Pages project, otherwise deploy-hook rebuilds publish the placeholder gallery. The cron Worker needs one secret of its own, `PAGES_DEPLOY_HOOK`.
+
+`.github/workflows/ci.yml` runs `astro check`, `npm run lint`, `prettier --check .`, and `npm run build` on every push and pull request, with no Facebook credentials.
 
 ## SEO
 

@@ -15,3 +15,6 @@ public/gallery/*.jpg
 public/gallery/*.png
 public/gallery/*.webp
 public/gallery/*.avif
+
+# Local visual-verification artefacts (screenshots + harness), not part of the site.
+.screens/

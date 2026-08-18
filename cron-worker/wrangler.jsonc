@@ -1,0 +1,23 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "faithfullycrafted-rebuild-cron",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-01",
+
+  // Every 3 days at 18:00 UTC == 02:00 Asia/Manila (UTC+8) the next day.
+  "triggers": {
+    "crons": ["0 18 */3 * *"],
+  },
+
+  // Cron-only Worker. No fetch handler, so no HTTP surface should exist at all.
+  "workers_dev": false,
+
+  // Required so failed rebuild triggers show up as errored invocations.
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+  },
+
+  // Secret (not declared here on purpose, secrets must never be in config):
+  //   PAGES_DEPLOY_HOOK -> npx wrangler secret put PAGES_DEPLOY_HOOK
+}

@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+# For CI, cancelling superseded runs on the same ref is the correct behaviour.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Quality gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx astro check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npx prettier --check .
+
+      # No FB_* secrets on purpose. scripts/fetch-gallery.mjs logs and returns
+      # cleanly when FB_PAGE_ID / FB_ACCESS_TOKEN are unset, and src/lib/facebook.ts
+      # falls back to the placeholder gallery when the JPGs are not on disk, so
+      # this proves the build works without the Facebook dependency.
+      - name: Build
+        run: npm run build

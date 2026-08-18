@@ -1,19 +1,40 @@
 name: Scheduled Rebuild and Deploy
 
+# Secondary / escape-hatch rebuild path. The primary schedule lives in the
+# Cloudflare cron Worker (cron-worker/), which fires a Pages Deploy Hook and
+# cannot be disabled by GitHub. See docs/deployment.md.
 on:
   schedule:
+    # Every 3 days at 00:00 UTC (08:00 Asia/Manila).
     - cron: '0 0 */3 * *'
   workflow_dispatch:
+
+# Never cancel a deploy that is already publishing; queue behind it instead.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  KEEPALIVE_FILE: .github/last-rebuild.txt
+  # GitHub disables cron triggers after 60 days of repository inactivity.
+  # Refresh well inside that window.
+  KEEPALIVE_MAX_AGE_DAYS: '40'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
-      contents: read
-      deployments: write
+      contents: write # commit the refreshed gallery manifest / keepalive stamp
+      deployments: write # Cloudflare Pages deployment status
+      issues: write # failure canary
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Full history so the keepalive gate can read the real last-commit
+          # date and so the pre-push rebase works.
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -21,18 +42,190 @@ jobs:
           node-version: 22
           cache: npm
 
+      # public/gallery/*.jpg is gitignored, so without this every run
+      # re-downloads all ~90 images. downloadImage() in fetch-gallery.mjs skips
+      # files already on disk, so a warm cache means only new posts are fetched.
+      # The run_id suffix guarantees the exact key always misses, which is what
+      # makes actions/cache write an updated entry in its post step; the
+      # restore-keys below supply the actual (prefix) hit.
+      - name: Restore gallery image cache
+        uses: actions/cache@v4
+        with:
+          # Images only. _manifest.json is tracked in git and rewritten by the
+          # fetch step, so caching it would only risk restoring a stale copy
+          # over the checked-out one.
+          path: |
+            public/gallery/*.jpg
+            public/gallery/*.png
+          key: gallery-${{ runner.os }}-${{ hashFiles('public/gallery/_manifest.json') }}-${{ github.run_id }}
+          restore-keys: |
+            gallery-${{ runner.os }}-${{ hashFiles('public/gallery/_manifest.json') }}-
+            gallery-${{ runner.os }}-
+
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build
+      - name: Fetch gallery from Facebook
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_ACCESS_TOKEN: ${{ secrets.FB_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          # fetch-gallery.mjs exits 0 and skips the download when these are
+          # unset, which is right for CI but would silently publish the
+          # placeholder gallery to production from here. Fail instead.
+          : "${FB_PAGE_ID:?repository secret FB_PAGE_ID is not set}"
+          : "${FB_ACCESS_TOKEN:?repository secret FB_ACCESS_TOKEN is not set}"
+          npm run fetch-gallery
+
+      # Without this, images from deleted Facebook posts would live in the
+      # cache forever and keep shipping in dist/.
+      - name: Prune orphaned gallery images
+        run: node scripts/prune-gallery.mjs
+
+      - name: Build site
+        run: npx astro build
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=faithfullycrafted
+          # --branch is explicit: on a schedule event wrangler has no branch to
+          # infer, and without it the deploy can land as a preview instead of
+          # production.
+          command: pages deploy dist --project-name=faithfullycrafted --branch=main
+
+      # A real commit here is also genuine repository activity, which is what
+      # keeps the cron trigger above from being auto-disabled.
+      - name: Commit manifest or refresh keepalive
+        run: |
+          set -euo pipefail
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          BRANCH='${{ github.ref_name }}'
+          MESSAGE=''
+
+          if ! git diff --quiet -- public/gallery/_manifest.json; then
+            COUNT="$(node -e "process.stdout.write(String(JSON.parse(require('node:fs').readFileSync('public/gallery/_manifest.json','utf8')).length))")"
+            git add public/gallery/_manifest.json
+            MESSAGE="chore(gallery): sync manifest (${COUNT} images) [skip ci]"
+          else
+            LAST_COMMIT_TS="$(git log -1 --format=%ct)"
+            AGE_DAYS="$(( ( $(date -u +%s) - LAST_COMMIT_TS ) / 86400 ))"
+            echo "Manifest unchanged. Newest commit is ${AGE_DAYS} day(s) old."
+            if [ "${AGE_DAYS}" -ge "${KEEPALIVE_MAX_AGE_DAYS}" ]; then
+              date -u +'%Y-%m-%dT%H:%M:%SZ' > "${KEEPALIVE_FILE}"
+              git add "${KEEPALIVE_FILE}"
+              MESSAGE="chore(ci): refresh rebuild keepalive stamp [skip ci]"
+            fi
+          fi
+
+          if [ -z "${MESSAGE}" ]; then
+            echo 'Nothing to commit; repository activity is recent enough.'
+            exit 0
+          fi
+
+          # A push made with GITHUB_TOKEN never retriggers Actions, but the
+          # Cloudflare Pages Git integration does see it. [skip ci] stops it
+          # rebuilding what this run just deployed.
+          git commit -m "${MESSAGE}"
+          git pull --rebase --autostash origin "${BRANCH}"
+          git push origin "HEAD:refs/heads/${BRANCH}"
+          echo "Committed and pushed: ${MESSAGE}"
+
+      - name: Report failure
+        if: failure()
+        uses: actions/github-script@v7
+        env:
+          MARKER_LABEL: scheduled-rebuild-failure
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const label = process.env.MARKER_LABEL;
+            const runUrl = `${process.env.GITHUB_SERVER_URL}/${owner}/${repo}/actions/runs/${context.runId}`;
+
+            // Identify the failing step from the run's own job data.
+            const failedSteps = [];
+            try {
+              const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
+                owner,
+                repo,
+                run_id: context.runId,
+                per_page: 100,
+              });
+              for (const job of jobs) {
+                for (const step of job.steps || []) {
+                  if (step.conclusion === 'failure') {
+                    failedSteps.push(`${job.name} / ${step.name}`);
+                  }
+                }
+              }
+            } catch (error) {
+              core.warning(`Could not read job steps: ${error.message}`);
+            }
+
+            // Ensure the marker label exists so the de-duplication lookup works
+            // on the very first failure.
+            try {
+              await github.rest.issues.createLabel({
+                owner,
+                repo,
+                name: label,
+                color: 'b60205',
+                description: 'Automated report from the scheduled rebuild workflow',
+              });
+            } catch (error) {
+              if (error.status !== 422) throw error;
+            }
+
+            const body = [
+              'The scheduled rebuild workflow failed.',
+              '',
+              `- Run: ${runUrl}`,
+              `- Trigger: \`${context.eventName}\``,
+              `- Commit: \`${context.sha}\``,
+              `- Time (UTC): ${new Date().toISOString()}`,
+              '',
+              'Failing step(s):',
+              failedSteps.length
+                ? failedSteps.map((step) => `- \`${step}\``).join('\n')
+                : '- Could not be determined automatically; read the run log.',
+              '',
+              'Most likely causes, in order:',
+              '1. The Facebook Page access token expired or was revoked. Re-issue it and update the `FB_ACCESS_TOKEN` repository secret.',
+              '2. The Graph API returned zero posts, so `scripts/fetch-gallery.mjs` aborted on purpose rather than deploy an empty gallery.',
+              '3. The Cloudflare API token expired. Rotate `CLOUDFLARE_API_TOKEN`.',
+              '',
+              'Runbook: `docs/deployment.md`.',
+            ].join('\n');
+
+            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              labels: label,
+              per_page: 100,
+            });
+            const existing = openIssues.find((issue) => !issue.pull_request);
+
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: existing.number,
+                body,
+              });
+              core.notice(`Appended failure report to existing issue #${existing.number}`);
+            } else {
+              const { data: created } = await github.rest.issues.create({
+                owner,
+                repo,
+                title: 'Scheduled rebuild failed',
+                body,
+                labels: [label],
+              });
+              core.notice(`Opened issue #${created.number}`);
+            }
