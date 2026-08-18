@@ -236,14 +236,42 @@ p {
    effectively invisible. Hover now darkens.
    ========================================================================== */
 
+/*
+ * Links inside running text are underlined.
+ *
+ * They previously carried colour only, which fails WCAG 1.4.1 (Use of Color) --
+ * axe flags it as `link-in-text-block` -- and leaves a link invisible to anyone
+ * who cannot distinguish the rose from the surrounding ink. The underline is
+ * thin and tinted so it stays quiet, and it darkens to full strength on hover.
+ */
 a:not([class*='bg-']):not(.no-underline-reset) {
   color: var(--color-rose-text);
-  text-decoration: none;
-  transition: color var(--duration-fast) ease;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--color-rose-tint);
+  text-underline-offset: 0.18em;
+  transition:
+    color var(--duration-fast) ease,
+    text-decoration-color var(--duration-fast) ease;
 }
 
 a:not([class*='bg-']):not(.no-underline-reset):hover {
   color: var(--color-rose-hover);
+  text-decoration-color: currentColor;
+}
+
+/*
+ * Links whose linkness is already carried by position and grouping -- nav
+ * lists, footer columns, breadcrumbs. No underline at rest, but one on hover so
+ * the affordance is never colour-only when the pointer is on it.
+ */
+a.link-plain:not([class*='bg-']) {
+  text-decoration: none;
+}
+
+a.link-plain:not([class*='bg-']):hover {
+  text-decoration: underline;
+  text-decoration-color: currentColor;
 }
 
 /* ==========================================================================

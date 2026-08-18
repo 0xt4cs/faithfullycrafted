@@ -39,6 +39,23 @@ const faqs = [
   description="Get in touch with Faithfully Crafted — reach Faith on Facebook Messenger or Instagram for custom crochet orders and enquiries."
   jsonLd={generateFaqSchema(faqs)}
 >
+  <header class="pb-4 pt-10 sm:pt-14">
+    <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+      <p class="label" data-reveal="up">Get in touch</p>
+      <h1
+        class="mt-2 font-heading text-step-5 font-bold text-ink-display"
+        data-reveal="up"
+        data-reveal-delay="60"
+      >
+        Contact
+      </h1>
+      <p class="measure mt-4 text-ink-muted" data-reveal="up" data-reveal-delay="120">
+        Messenger is the quickest way to reach Faith. For a custom piece, the order form asks
+        everything she would need to know anyway.
+      </p>
+    </div>
+  </header>
+
   <ContactCard />
 
   <Divider variant={3} />

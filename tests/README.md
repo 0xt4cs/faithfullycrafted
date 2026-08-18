@@ -232,3 +232,45 @@ finding is one of:
 
 If `dist/` is out of date, rebuild before believing any of it — though the
 staleness gate should have skipped the check in that case.
+
+---
+
+## End-to-end suite (`tests/e2e/`)
+
+Run with `npm run test:e2e`. Requires `dist/` to exist — the suite previews the real
+production build rather than the dev server, because the things it asserts (emitted meta
+tags, compiled CSS, bundled scripts, image derivatives) only exist after a build.
+
+| File                 | Guards                                                                                                                                                                                                                                           |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `a11y.test.mjs`      | axe-core against WCAG 2.0/2.1 A and AA, on every page template plus the mobile viewport, the open mobile menu, and the open lightbox                                                                                                             |
+| `smoke.test.mjs`     | behaviour: nav active state, focus management in both overlays, gallery filter and search, the no-results state, lightbox navigation, order-form validation and its clipboard handoff, and the JavaScript-disabled and reduced-motion guarantees |
+| `standards.test.mjs` | document structure: one `h1`, no skipped heading levels, no duplicate ids, alt text quality, intrinsic image dimensions, metadata, JSON-LD validity, no third-party requests, safe `target="_blank"`                                             |
+
+### Why these specific assertions
+
+Each one encodes a bug this codebase actually shipped:
+
+- **`link-in-text-block`** — the global link rule removed underlines, so links inside
+  prose were distinguished by colour alone (WCAG 1.4.1).
+- **Contrast on composites** — the active filter chip used `bg-white/25 text-white` over
+  the rose fill. `contrast.test.mjs` cannot see this: it is a translucent overlay over a
+  token, not a token pair. axe can.
+- **Alt text quality** — captions were passed verbatim to `alt`, so screen readers
+  announced hashtag spam.
+- **Content visible without JavaScript** — `[data-reveal] { opacity: 0 }` was ungated, so
+  a failed reveal script left whole pages blank.
+- **One `h1` per page** — `/contact/` had none; it opened at `h2`.
+- **Heading order** — the footer used `h3`, so the 404 outline jumped `h1` to `h3`.
+- **Meaningful meta descriptions** — one piece is captioned "12 am update", which
+  truncated to a 16-character description.
+- **No empty `src`** — the lightbox shipped `<img src="">`, which resolves against the
+  document, so every page requested its own HTML as an image.
+
+### Environment differences
+
+The gallery is only populated when Facebook credentials were present at build time. CI
+builds without them on purpose, so there the gallery renders its empty state. The suite
+resolves its targets at run time — it reads a real piece slug from the sitemap and counts
+gallery items — and gallery-dependent specs skip with a stated reason rather than failing
+for something unrelated. Locally, with a populated manifest, all 54 run.

@@ -27,12 +27,12 @@ import SocialIcon from '@components/ui/SocialIcon.astro';
 
       <!-- Quick Links -->
       <nav class="text-center" aria-label="Footer navigation">
-        <h3 class="label mb-4 font-heading font-semibold">Pages</h3>
+        <h2 class="label mb-4 font-heading font-semibold">Pages</h2>
         <ul class="space-y-2.5" role="list">
           {
             NAV_ITEMS.map((item) => (
               <li>
-                <a href={item.href} class="text-step--1">
+                <a href={item.href} class="link-plain text-step--1">
                   {item.label}
                 </a>
               </li>
@@ -43,7 +43,7 @@ import SocialIcon from '@components/ui/SocialIcon.astro';
 
       <!-- Social -->
       <div class="text-center md:text-right">
-        <h3 class="label mb-4 font-heading font-semibold">Connect</h3>
+        <h2 class="label mb-4 font-heading font-semibold">Connect</h2>
         <div class="flex items-center justify-center gap-3 md:justify-end">
           <SocialIcon platform="facebook" href={SOCIALS.facebook.url} />
           <SocialIcon platform="instagram" href={SOCIALS.instagram.url} />
@@ -68,8 +68,8 @@ import SocialIcon from '@components/ui/SocialIcon.astro';
         {SITE.name}.
       </p>
       <div class="flex items-center gap-5">
-        <a href="/privacy/" class="text-step--1">Privacy Policy</a>
-        <a href="/terms/" class="text-step--1">Terms of Service</a>
+        <a href="/privacy/" class="link-plain text-step--1">Privacy Policy</a>
+        <a href="/terms/" class="link-plain text-step--1">Terms of Service</a>
       </div>
     </div>
   </div>

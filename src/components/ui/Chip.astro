@@ -40,7 +40,9 @@ const { label, value, count, active = false, class: className = '' } = Astro.pro
       <span
         class:list={[
           'tabular rounded-full px-1.5 py-0.5 text-[0.7rem] leading-none',
-          active ? 'bg-white/25 text-white' : 'bg-rose-wash text-ink-subtle',
+          // A translucent white badge over the rose fill left white text at
+          // roughly 2:1. Solid white with rose text measures 5.53:1.
+          active ? 'bg-card text-rose-text' : 'bg-rose-wash text-ink-subtle',
         ]}
       >
         {count}

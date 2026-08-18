@@ -56,9 +56,14 @@ Opens at `http://localhost:4321`.
 ### Verify
 
 ```bash
-npm run verify     # astro check + eslint + prettier + build + tests
-npm test           # contrast and dead-class gates only
+npm run verify     # check + lint + format + build + unit tests + e2e
+npm test           # unit gates only: contrast and dead classes
+npm run test:e2e   # axe-core WCAG 2.1 AA, behaviour, and document standards
 ```
+
+62 tests in total. The e2e suite needs an existing `dist/`, since it previews the real
+production build. See `tests/README.md` for what each assertion is guarding against —
+every one of them encodes a bug this codebase shipped at least once.
 
 ### Build
 

@@ -38,7 +38,27 @@ const { item } = Astro.props;
 const { previous, next } = getNeighbours(item.slug);
 const related = getRelated(item, 4);
 
-const description = (item.body || item.alt).replace(/\s+/g, ' ').slice(0, 155);
+/**
+ * Compose the meta description rather than truncating the caption.
+ *
+ * Faith's captions run from a paragraph to two words — one piece is captioned
+ * "12 am update", which as a description is both too short to be useful in a
+ * result and emoji-laden. So the caption leads when it carries enough
+ * substance, and a factual sentence about the piece fills the rest. Emoji are
+ * stripped: search engines discard them and they read as noise in a snippet.
+ */
+const EMOJI = /\p{Extended_Pictographic}|️|︎|‍|⃣/gu;
+
+const cleanBody = (item.body || '').replace(EMOJI, '').replace(/\s+/g, ' ').trim();
+const context = `Handmade crochet ${item.categoryLabel.toLowerCase()} by Faith, made to order in Caloocan, Philippines.`;
+
+const description = (
+  cleanBody.length >= 80 ? cleanBody : cleanBody ? `${cleanBody}. ${context}` : context
+)
+  .replace(/\s+/g, ' ')
+  .replace(/\.\s*\./g, '.')
+  .slice(0, 155)
+  .trim();
 
 /**
  * Preload the widest AVIF that actually exists for this piece. Hardcoding a
@@ -66,9 +86,9 @@ const preloadImage = avifWidths.length
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
       <nav aria-label="Breadcrumb" class="mb-8">
         <ol class="flex flex-wrap items-center gap-2 text-step--1 text-ink-subtle" role="list">
-          <li><a href="/">Home</a></li>
+          <li><a href="/" class="link-plain">Home</a></li>
           <li aria-hidden="true">/</li>
-          <li><a href="/gallery/">Gallery</a></li>
+          <li><a href="/gallery/" class="link-plain">Gallery</a></li>
           <li aria-hidden="true">/</li>
           <li class="text-ink-muted" aria-current="page">{item.categoryLabel}</li>
         </ol>

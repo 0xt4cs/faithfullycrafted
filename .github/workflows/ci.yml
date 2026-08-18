@@ -39,8 +39,23 @@ jobs:
         run: npx prettier --check .
 
       # No FB_* secrets on purpose. scripts/fetch-gallery.mjs logs and returns
-      # cleanly when FB_PAGE_ID / FB_ACCESS_TOKEN are unset, and src/lib/facebook.ts
-      # falls back to the placeholder gallery when the JPGs are not on disk, so
-      # this proves the build works without the Facebook dependency.
+      # cleanly when FB_PAGE_ID / FB_ACCESS_TOKEN are unset, and src/lib/gallery.ts
+      # falls back to its empty state when the images are not on disk, so this
+      # proves the build works without the Facebook dependency.
       - name: Build
-        run: npm run build
+        run: npm run build:only
+
+      - name: Unit tests (contrast + dead classes)
+        run: npm test
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      # The e2e suite previews the real dist/ output. Without Facebook
+      # credentials the gallery renders its empty state, so the gallery,
+      # lightbox and piece-page specs have nothing to assert against and are
+      # skipped here. They are the reason `npm run verify` exists locally, where
+      # a populated manifest is present.
+      - name: Accessibility and standards (axe-core, WCAG 2.1 AA)
+        run: node --test --test-concurrency=1 "tests/e2e/a11y.test.mjs" "tests/e2e/standards.test.mjs"
+        continue-on-error: false

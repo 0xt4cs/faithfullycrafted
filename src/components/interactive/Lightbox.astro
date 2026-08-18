@@ -88,9 +88,15 @@
   </button>
 
   <figure class="mx-auto flex max-h-[92dvh] w-full max-w-4xl flex-col items-center px-4">
+    {
+      /*
+      No `src` attribute at all until JavaScript sets one. An empty src="" is
+      resolved against the document, so every page was firing a request for its
+      own HTML as an image.
+    */
+    }
     <img
       id="lightbox-image"
-      src=""
       alt=""
       width="1200"
       height="1200"
