@@ -1,24 +1,130 @@
 ---
+/**
+ * Divider
+ *
+ * The old divider drew the identical three-glyph row (yarn ball, star, yarn
+ * ball) at every single call site. Repeating one ornament is what makes an
+ * ornament read as wallpaper, so this now offers four distinct crochet
+ * motifs, hand-authored rather than taken from an icon set:
+ *
+ *   1  running stitch   — dashes with a yarn ball, the plainest option
+ *   2  chain stitch     — interlocking loops, the actual ch-stitch shape
+ *   3  hook and thread  — a crochet hook with the working yarn curling off
+ *   4  shell edging     — the scalloped border used to finish a blanket
+ *
+ * Everything here is decoration, so it is aria-hidden and colours itself
+ * with fill-* / stroke-* utilities. It never uses text-* — decorative
+ * tokens are barred from text contexts and `tests/contrast.test.mjs`
+ * enforces that.
+ */
 interface Props {
+  variant?: 1 | 2 | 3 | 4;
   class?: string;
 }
 
-const { class: className = '' } = Astro.props;
+const { variant = 1, class: className = '' } = Astro.props;
 ---
 
-<div class={`flex items-center justify-center gap-3 py-8 ${className}`} aria-hidden="true">
-  <svg class="w-4 h-4 text-primary opacity-60" viewBox="0 0 16 16" fill="currentColor">
-    <circle cx="5" cy="11" r="3" />
-    <circle cx="10" cy="7" r="2.5" />
-    <circle cx="13" cy="11" r="1.5" />
-  </svg>
-  <div class="h-px w-16 bg-gradient-to-r from-transparent via-primary/40 to-transparent"></div>
-  <svg class="w-3 h-3 text-lavender opacity-60" viewBox="0 0 12 12" fill="currentColor">
-    <path d="M6 0L7.5 4.5L12 6L7.5 7.5L6 12L4.5 7.5L0 6L4.5 4.5Z" />
-  </svg>
-  <div class="h-px w-16 bg-gradient-to-r from-transparent via-primary/40 to-transparent"></div>
-  <svg class="w-4 h-4 text-mint opacity-60" viewBox="0 0 16 16" fill="currentColor">
-    <circle cx="8" cy="8" r="6" />
-    <path d="M5 10c1-2 2.5-3 3-5M8 5c1 2 2 3 3 5" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" />
-  </svg>
+<div class={`flex items-center justify-center py-10 ${className}`} aria-hidden="true">
+  {
+    variant === 1 && (
+      <svg class="h-6 w-56 max-w-full" viewBox="0 0 224 24" fill="none">
+        <path
+          d="M4 12h74"
+          class="stroke-rose-tint"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-dasharray="7 6"
+        />
+        <path
+          d="M146 12h74"
+          class="stroke-rose-tint"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-dasharray="7 6"
+        />
+        <circle cx="112" cy="12" r="9" class="fill-rose-brand/25" />
+        <path
+          d="M105 17c3-6 6-7.5 7.5-13.5M108 5.5c2.5 6 5 8.5 10 11"
+          class="stroke-rose-brand/60"
+          stroke-width="1.6"
+          stroke-linecap="round"
+        />
+      </svg>
+    )
+  }
+
+  {
+    variant === 2 && (
+      <svg class="h-6 w-56 max-w-full" viewBox="0 0 224 24" fill="none">
+        <g class="stroke-rose-tint" stroke-width="2" stroke-linecap="round">
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+            <ellipse
+              cx={22 + i * 20}
+              cy="12"
+              rx="11"
+              ry="6"
+              transform={`rotate(${i % 2 === 0 ? -12 : 12} ${22 + i * 20} 12)`}
+            />
+          ))}
+        </g>
+      </svg>
+    )
+  }
+
+  {
+    variant === 3 && (
+      <svg class="h-8 w-56 max-w-full" viewBox="0 0 224 32" fill="none">
+        <path
+          d="M4 16h68"
+          class="stroke-rose-tint"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-dasharray="7 6"
+        />
+        {/* the hook: shaft, then the crook that catches the yarn */}
+        <path
+          d="M84 24 L108 10"
+          class="stroke-rose-brand/70"
+          stroke-width="2.4"
+          stroke-linecap="round"
+        />
+        <path
+          d="M108 10 q6-3.5 8 1.5 q1.5 4.5-4 5"
+          class="stroke-rose-brand/70"
+          stroke-width="2.4"
+          stroke-linecap="round"
+        />
+        {/* working yarn curling away from the hook */}
+        <path
+          d="M112 17 q10 6 22 2 q12-4 20 4 q7 7 18 2"
+          class="stroke-rose-tint"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+        <circle cx="176" cy="24" r="6" class="fill-rose-brand/20" />
+        <path d="M197 16h23" class="stroke-rose-tint" stroke-width="2" stroke-linecap="round" stroke-dasharray="7 6" />
+      </svg>
+    )
+  }
+
+  {
+    variant === 4 && (
+      <svg class="h-6 w-64 max-w-full" viewBox="0 0 256 24" fill="none">
+        {/* shell edging: the scalloped finish on a crochet blanket */}
+        <path
+          d="M8 16 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0"
+          class="stroke-rose-tint"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+        <path
+          d="M8 16h240"
+          class="stroke-rose-brand/25"
+          stroke-width="1.6"
+          stroke-linecap="round"
+        />
+      </svg>
+    )
+  }
 </div>

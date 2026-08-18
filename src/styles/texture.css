@@ -1,0 +1,122 @@
+/* ==========================================================================
+   Texture
+   --------------------------------------------------------------------------
+   The previous design created its "handmade" feeling by rotating things:
+   46 rotate-* declarations and 11 washi-tape clip-paths across the site.
+   When every card is tilted, no card is special, and the repetition itself
+   is what reads as machine-generated.
+
+   Craft feeling moves here instead — into material. A crochet stitch field,
+   paper grain, and a thread rail. These are cheap (three inline SVGs, no
+   image requests, no JS), they do not move, and they survive
+   prefers-reduced-motion untouched because nothing here animates.
+
+   All motifs are hand-authored below rather than pulled from a pattern
+   library, so the stitch geometry actually resembles crochet: a field of
+   V-stitches in offset rows, which is how single crochet reads on a swatch.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Crochet V-stitch field.
+   Two rows of chevrons, the second offset by half a tile, so the seam is
+   invisible when it repeats. Stroke is rose at low alpha — decoration, so
+   it uses the brand pink rather than the text rose.
+   -------------------------------------------------------------------------- */
+.stitch-field {
+  position: relative;
+  isolation: isolate;
+}
+
+.stitch-field::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='32' viewBox='0 0 40 32'%3E%3Cg fill='none' stroke='%23e8669a' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' opacity='0.28'%3E%3Cpath d='M2 3 L10 13 L18 3'/%3E%3Cpath d='M22 3 L30 13 L38 3'/%3E%3Cpath d='M-8 19 L0 29 L8 19'/%3E%3Cpath d='M12 19 L20 29 L28 19'/%3E%3Cpath d='M32 19 L40 29 L48 19'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 40px 32px;
+}
+
+/* A denser, smaller variant for narrow strips and card headers. */
+.stitch-field--fine::before {
+  background-size: 26px 21px;
+  opacity: 0.38;
+}
+
+/* --------------------------------------------------------------------------
+   Paper grain.
+   Pastel fills go flat and plasticky on a screen; a little noise gives them
+   the tooth of paper. Kept very low (3%) and multiplied so it darkens into
+   the surface rather than fogging it grey.
+   -------------------------------------------------------------------------- */
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* Page-wide grain. Fixed so it does not scroll with content — the texture
+   belongs to the screen, not to the document, which is how real paper grain
+   behaves under a moving eye. */
+.grain-page {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.03;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* --------------------------------------------------------------------------
+   Thread rail.
+   A dashed vertical line used to link steps in the process section, so the
+   three-equal-columns layout can become a connected sequence instead. Reads
+   as a running stitch.
+   -------------------------------------------------------------------------- */
+.thread-rail {
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-rose-tint) 0 6px,
+    transparent 6px 14px
+  );
+  background-size: 2px 14px;
+  background-repeat: repeat-y;
+  background-position: top center;
+}
+
+.thread-rail--horizontal {
+  background-image: linear-gradient(
+    to right,
+    var(--color-rose-tint) 0 6px,
+    transparent 6px 14px
+  );
+  background-size: 14px 2px;
+  background-repeat: repeat-x;
+  background-position: left center;
+}
+
+/* --------------------------------------------------------------------------
+   Glass.
+   True refraction rather than a plain blur: an inner top highlight plus a
+   hairline border. Replaces the previous 3px dashed rose border at 40%
+   alpha, which read as an unfinished placeholder rather than a material.
+   -------------------------------------------------------------------------- */
+.glass {
+  background: rgb(255 245 247 / 0.72);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid rgb(255 255 255 / 0.55);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.7),
+    var(--shadow-2);
+}

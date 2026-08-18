@@ -1,0 +1,50 @@
+---
+/**
+ * Chip
+ *
+ * Gallery category filter. Rendered as a real <button> inside a
+ * role="group", with `aria-pressed` carrying the selected state so the
+ * filter is announced correctly rather than relying on colour alone.
+ *
+ * The count uses tabular figures so the chip row does not reflow by a
+ * pixel or two as counts change between builds.
+ */
+interface Props {
+  label: string;
+  value: string;
+  count?: number;
+  active?: boolean;
+  class?: string;
+}
+
+const { label, value, count, active = false, class: className = '' } = Astro.props;
+---
+
+<button
+  type="button"
+  class:list={[
+    'group inline-flex items-center gap-2 rounded-chip border px-3.5 py-2',
+    'font-heading text-step--1 font-semibold',
+    'transition-[background-color,border-color,color,box-shadow] duration-[var(--duration-fast)] ease-soft',
+    active
+      ? 'border-rose-text bg-rose-text text-white shadow-1'
+      : 'border-rose-tint bg-card text-ink-muted hover:border-rose-text hover:text-rose-text',
+    className,
+  ]}
+  data-filter={value}
+  aria-pressed={active ? 'true' : 'false'}
+>
+  <span>{label}</span>
+  {
+    count !== undefined && (
+      <span
+        class:list={[
+          'tabular rounded-full px-1.5 py-0.5 text-[0.7rem] leading-none',
+          active ? 'bg-white/25 text-white' : 'bg-rose-wash text-ink-subtle',
+        ]}
+      >
+        {count}
+      </span>
+    )
+  }
+</button>

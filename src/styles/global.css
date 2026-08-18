@@ -1,6 +1,15 @@
 @import 'tailwindcss';
+@import './texture.css';
 @import './animations.css';
 @import './cursor.css';
+
+/* ==========================================================================
+   Fonts — self-hosted WOFF2, no third-party requests.
+   The variable ranges declared here are what make weights 500 and 600
+   available; the previous design only ever used 400 and 700 because the
+   utilities it reached for (font-600 / font-700) were not real Tailwind
+   classes and emitted no CSS at all.
+   ========================================================================== */
 
 @font-face {
   font-family: 'Quicksand';
@@ -35,25 +44,286 @@
 }
 
 @theme {
-  --color-background: #fff5f7;
+  /* ------------------------------------------------------------------
+     SURFACES — the only backgrounds permitted to sit behind text.
+     Every text token below is verified to clear WCAG AA 4.5:1 against
+     all five of these. `cream` is the darkest and therefore the binding
+     constraint; anything that passes on cream passes everywhere.
+     ------------------------------------------------------------------ */
+  --color-page: #fff5f7;
   --color-surface: #fde8ee;
+  --color-card: #ffffff;
   --color-cream: #fcebd5;
-  --color-primary: #f4b8c8;
-  --color-primary-bold: #e8669a;
-  --color-lavender: #c4b5d9;
-  --color-mint: #a0d8cf;
-  --color-gold: #d4aa6a;
-  --color-text: #4a3347;
-  --color-text-muted: #6b5060;
+  --color-rose-wash: #fdeef3;
 
-  --font-heading: 'Quicksand', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
-  --font-brand: 'Dancing Script', cursive;
+  /* ------------------------------------------------------------------
+     INK — text. Four steps of hierarchy, all AA on every surface.
+     Measured against cream (worst case): 11.87 / 9.68 / 6.10 / 4.75
+     ------------------------------------------------------------------ */
+  --color-ink-display: #3a2637;
+  --color-ink-body: #4a3347;
+  --color-ink-muted: #6b5060;
+  --color-ink-subtle: #7d6070;
+
+  /* ------------------------------------------------------------------
+     ROSE — the single accent. One hue, three roles.
+
+     rose-text is the ONLY rose permitted on type. It is the deepest
+     candidate that clears 4.5:1 on cream (4.73). Faith's original brand
+     pink #e8669a scores 2.65 there — it fails even the 3:1 large-text
+     bar — so it is barred from text entirely and lives on as fill.
+     ------------------------------------------------------------------ */
+  --color-rose-text: #bf2f62; /* links, captions, small text, button fills */
+  --color-rose-hover: #a82d5c; /* hover RAISES contrast: 4.73 -> 5.63 on cream */
+
+  /* ------------------------------------------------------------------
+     NON-TEXT TOKENS — decoration and structure only.
+     NEVER use these as a text colour. `tests/contrast.test.mjs` fails
+     the build if any of them appears in a text context. This rule is
+     what retires the two contrast bugs that shipped to production:
+     a:hover -> lavender (1.92:1) and the mint process icon (1.59:1).
+     ------------------------------------------------------------------ */
+  --color-rose-brand: #e8669a; /* Faith's brand pink. Fills, tape, yarn shapes. */
+  --color-rose-tint: #f9d2de; /* borders and rails. NOT a text surface (4.03). */
+  --color-decor-mint: #a0d8cf; /* <=15% opacity, decorative only */
+  --color-decor-lavender: #c4b5d9; /* <=15% opacity, decorative only */
+  --color-decor-gold: #d4aa6a; /* <=15% opacity, decorative only */
+
+  --color-focus: #a82d5c;
+
+  /* ------------------------------------------------------------------
+     TYPE — fluid modular scale, ratio ~1.2.
+     Replaces the inline clamp() one-offs that previously lived in
+     style="" attributes on individual headings.
+     ------------------------------------------------------------------ */
+  --text-step--1: clamp(0.83rem, 0.81rem + 0.12vw, 0.9rem);
+  --text-step-0: clamp(1rem, 0.96rem + 0.2vw, 1.075rem);
+  --text-step-1: clamp(1.2rem, 1.13rem + 0.34vw, 1.35rem);
+  --text-step-2: clamp(1.44rem, 1.32rem + 0.58vw, 1.7rem);
+  --text-step-3: clamp(1.73rem, 1.54rem + 0.93vw, 2.15rem);
+  --text-step-4: clamp(2.07rem, 1.78rem + 1.44vw, 2.7rem);
+  --text-step-5: clamp(2.49rem, 2.03rem + 2.28vw, 3.4rem);
+  --text-step-6: clamp(2.99rem, 2.28rem + 3.5vw, 4.3rem);
+
+  --font-heading: 'Quicksand', ui-rounded, 'Segoe UI', sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-brand: 'Dancing Script', 'Segoe Script', cursive;
+
+  --tracking-display: -0.02em;
+  --tracking-label: 0.08em;
+
+  --leading-display: 1.08;
+  --leading-heading: 1.2;
+  --leading-body: 1.65;
+
+  /* ------------------------------------------------------------------
+     RADIUS — concentric. Inner radius = outer radius minus padding,
+     so a 12px image inside a 20px card with 8px padding nests cleanly.
+     Replaces four unrelated radii applied at random.
+     ------------------------------------------------------------------ */
+  --radius-card: 20px;
+  --radius-inner: 12px;
+  --radius-control: 14px;
+  --radius-chip: 10px;
+
+  /* ------------------------------------------------------------------
+     ELEVATION — one rose-tinted family, one light source (directly
+     above, so every shadow falls straight down). Layered and
+     low-opacity rather than a single hard drop. Replaces nine copies
+     of shadow-primary/10 mixed with shadow-md / lg / xl.
+     ------------------------------------------------------------------ */
+  --shadow-1:
+    0 1px 2px rgb(90 40 60 / 0.05), 0 2px 6px rgb(90 40 60 / 0.05);
+  --shadow-2:
+    0 2px 4px rgb(90 40 60 / 0.05), 0 8px 20px rgb(90 40 60 / 0.07);
+  --shadow-3:
+    0 4px 8px rgb(90 40 60 / 0.06), 0 18px 40px rgb(90 40 60 / 0.09);
+
+  /* ------------------------------------------------------------------
+     MOTION — one named feel, not ad-hoc per-component easing.
+     ------------------------------------------------------------------ */
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.42, 0.64, 1);
+
+  --duration-fast: 160ms;
+  --duration-base: 260ms;
+  --duration-slow: 420ms;
+
+  /* ==================================================================
+     DEPRECATED ALIASES — migration scaffolding, deleted once every
+     component has moved to the tokens above. Do not use in new code.
+
+     Note that --color-primary-bold deliberately resolves to the NEW
+     accessible #bf2f62 rather than the old #e8669a, so any component
+     not yet migrated inherits the contrast fix immediately.
+     ================================================================== */
+  --color-background: #fff5f7; /* DEPRECATED -> --color-page */
+  --color-primary: #f9d2de; /* DEPRECATED -> --color-rose-tint */
+  --color-primary-bold: #bf2f62; /* DEPRECATED -> --color-rose-text */
+  --color-lavender: #c4b5d9; /* DEPRECATED -> --color-decor-lavender */
+  --color-mint: #a0d8cf; /* DEPRECATED -> --color-decor-mint */
+  --color-gold: #d4aa6a; /* DEPRECATED -> --color-decor-gold */
+  --color-text: #4a3347; /* DEPRECATED -> --color-ink-body */
+  --color-text-muted: #6b5060; /* DEPRECATED -> --color-ink-muted */
 }
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
 
 html {
   scroll-behavior: smooth;
+  /* Tells the UA to render form controls and scrollbars for a light
+     surface. Without it, a user with an OS-level dark preference gets
+     dark native widgets on a pink page. */
+  color-scheme: light;
 }
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-step-0);
+  line-height: var(--leading-body);
+  color: var(--color-ink-body);
+  background-color: var(--color-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--color-ink-display);
+  line-height: var(--leading-heading);
+  /* Stops the six-line heading wrap and the single orphaned word. */
+  text-wrap: balance;
+}
+
+h1 {
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* Readable measure. ~65 characters is the target; opt in with .measure
+   rather than forcing it globally so grid and card copy stay unaffected. */
+.measure {
+  max-width: 65ch;
+}
+
+/* Small caps labels: dates, counts, meta. Tabular figures so columns of
+   dates and counters do not shift width as digits change. */
+.label {
+  font-size: var(--text-step--1);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-subtle);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Links — hover must RAISE contrast, never lower it. The previous rule
+   sent every link to lavender on hover (1.92:1), which made links
+   effectively invisible. Hover now darkens.
+   ========================================================================== */
+
+a:not([class*='bg-']):not(.no-underline-reset) {
+  color: var(--color-rose-text);
+  text-decoration: none;
+  transition: color var(--duration-fast) ease;
+}
+
+a:not([class*='bg-']):not(.no-underline-reset):hover {
+  color: var(--color-rose-hover);
+}
+
+/* ==========================================================================
+   Focus — never removed, always visible, high contrast on every surface.
+   ========================================================================== */
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip link: visually hidden until focused. */
+.skip-link {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, -120%);
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  border-bottom-left-radius: var(--radius-control);
+  border-bottom-right-radius: var(--radius-control);
+  background: var(--color-rose-text);
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  transition: transform 180ms var(--ease-soft);
+}
+
+.skip-link:focus-visible {
+  transform: translate(-50%, 0);
+}
+
+::selection {
+  background-color: var(--color-rose-tint);
+  color: var(--color-ink-display);
+}
+
+/* ==========================================================================
+   Scrollbar
+   ========================================================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-rose-tint);
+  border-radius: 9999px;
+  border: 2px solid var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-rose-text);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-rose-tint) var(--color-surface);
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ==========================================================================
+   Reduced motion — honoured for every custom animation and transition.
+   ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -70,70 +340,10 @@ html {
   }
 }
 
-body {
-  font-family: var(--font-body);
-  color: var(--color-text);
-  background-color: var(--color-background);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+/* ==========================================================================
+   Touch vs pointer
+   ========================================================================== */
 
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-surface);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-primary);
-  border-radius: 9999px;
-  border: 2px solid var(--color-surface);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary-bold);
-}
-
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-primary) var(--color-surface);
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-heading);
-  font-weight: 700;
-}
-
-::selection {
-  background-color: var(--color-primary);
-  color: var(--color-text);
-}
-
-:focus-visible {
-  outline: 3px solid var(--color-primary-bold);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-a:not([class*='bg-']) {
-  color: var(--color-primary-bold);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-a:not([class*='bg-']):hover {
-  color: var(--color-lavender);
-}
-
-/* Touch vs Mouse device utilities */
 @media (hover: hover) and (pointer: fine) {
   .touch-only {
     display: none !important;
@@ -149,26 +359,13 @@ a:not([class*='bg-']):hover {
   }
 }
 
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
+/* ==========================================================================
+   Backdrop-filter fallback — keeps the nav island legible on browsers
+   without backdrop-filter support.
+   ========================================================================== */
 
 @supports not (backdrop-filter: blur(1px)) {
-  .backdrop-blur-0 {
-    background: transparent;
-  }
-  .backdrop-blur-md {
-    background: rgba(255, 245, 247, 0.92);
-  }
-  .backdrop-blur-xl {
-    background: rgba(255, 245, 247, 0.92);
-  }
-  .backdrop-blur-2xl {
-    background: rgba(255, 245, 247, 0.95);
+  .glass {
+    background: rgb(255 245 247 / 0.94) !important;
   }
 }

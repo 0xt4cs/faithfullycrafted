@@ -1,0 +1,62 @@
+---
+/**
+ * Card
+ *
+ * The calm surface that replaces the tilted, taped, layered-offset card the
+ * old design used everywhere. Tape and tilt now survive in exactly one place
+ * on the site (the hero), so these can be quiet and let the crochet
+ * photography carry the page.
+ *
+ * Radius is concentric: `media` cards use 8px padding with a 12px inner
+ * radius against the 20px outer, so the image corner sits parallel to the
+ * card corner instead of fighting it. Text-only cards nest nothing, so they
+ * take generous padding and only the outer radius applies.
+ */
+interface Props {
+  /** `media` = 8px pad for a nested image. `text` = generous pad, no nesting. */
+  layout?: 'media' | 'text';
+  /** Wraps the whole card in a link. */
+  href?: string;
+  /** Lift + deepen shadow on hover. Implied by `href`. */
+  interactive?: boolean;
+  /** Base elevation. */
+  elevation?: 1 | 2;
+  class?: string;
+  'aria-label'?: string;
+}
+
+const {
+  layout = 'media',
+  href,
+  interactive,
+  elevation = 2,
+  class: className = '',
+  'aria-label': ariaLabel,
+} = Astro.props;
+
+const isInteractive = interactive ?? !!href;
+
+const classes = [
+  'relative block bg-card rounded-card border border-rose-tint/60',
+  layout === 'media' ? 'p-2' : 'p-6 sm:p-8',
+  elevation === 1 ? 'shadow-1' : 'shadow-2',
+  isInteractive &&
+    // One motion vocabulary, shared with Button: a small lift, never a tilt.
+    'transition-[box-shadow,transform,border-color] duration-[var(--duration-base)] ease-soft hover:-translate-y-0.5 hover:shadow-3 hover:border-rose-tint',
+  className,
+]
+  .filter(Boolean)
+  .join(' ');
+---
+
+{
+  href ? (
+    <a href={href} class={classes} aria-label={ariaLabel}>
+      <slot />
+    </a>
+  ) : (
+    <div class={classes}>
+      <slot />
+    </div>
+  )
+}

@@ -1,34 +1,72 @@
 ---
+/**
+ * Button
+ *
+ * Renders an <a> when `href` is given, otherwise a real <button> with a
+ * proper `type`. Previously this component always emitted a type-less
+ * <button>, which defaults to type="submit" and would submit any form it
+ * was ever placed inside.
+ *
+ * The old version also applied `hover:rotate-[-2deg] hover:scale-105` to
+ * every single button. A CTA that tilts is a nice moment exactly once; on
+ * all seven buttons across the site it became the same repetition problem
+ * as the 46 rotated cards. Hover is now a 1px lift plus a deeper shadow,
+ * which is one consistent motion vocabulary shared with Card.
+ */
 interface Props {
   variant?: 'primary' | 'secondary' | 'ghost';
   href?: string;
   size?: 'sm' | 'md' | 'lg';
   class?: string;
   external?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
+  /** Renders a spinner and blocks interaction. For the order form. */
+  busy?: boolean;
+  id?: string;
+  'aria-label'?: string;
 }
 
-const { variant = 'primary', href, size = 'md', class: className = '', external = false } = Astro.props;
+const {
+  variant = 'primary',
+  href,
+  size = 'md',
+  class: className = '',
+  external = false,
+  type = 'button',
+  disabled = false,
+  busy = false,
+  id,
+  'aria-label': ariaLabel,
+} = Astro.props;
 
 const sizes = {
-  sm: 'px-4 py-2 text-sm',
-  md: 'px-6 py-3 text-base',
-  lg: 'px-8 py-4 text-lg',
+  // min-height keeps every control on the same 44/48px touch target.
+  sm: 'px-4 py-2 text-step--1 min-h-[44px]',
+  md: 'px-6 py-3 text-step-0 min-h-[48px]',
+  lg: 'px-8 py-4 text-step-1 min-h-[52px]',
 };
 
 const variants = {
-  primary:
-    'bg-primary-bold text-[#ffffff] hover:bg-[#d4568a] shadow-lg shadow-primary/30 shimmer-gold',
+  // white on --color-rose-text measures 5.53:1, so the label passes AA at
+  // every size. The previous fill (#e8669a) gave 3.09:1 and failed on the
+  // small size.
+  primary: 'bg-rose-text text-white hover:bg-rose-hover shadow-2 hover:shadow-3',
   secondary:
-    'bg-surface text-primary-bold border-2 border-primary hover:bg-primary/10 shimmer-gold',
-  ghost:
-    'text-primary-bold hover:bg-primary/10',
+    'bg-card text-rose-text border border-rose-tint hover:border-rose-text hover:bg-rose-wash shadow-1 hover:shadow-2',
+  ghost: 'text-rose-text hover:bg-rose-wash',
 };
 
 const base = [
-  'inline-flex items-center justify-center gap-2 font-heading font-semibold rounded-2xl',
-  'transition-all duration-300',
-  'active:scale-95 hover:rotate-[-2deg] hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary-bold focus-visible:ring-offset-2',
-  'min-h-[48px]',
+  'inline-flex items-center justify-center gap-2',
+  'font-heading font-semibold rounded-control',
+  // Explicit properties rather than transition-all, which forces the
+  // browser to watch every animatable property on the element.
+  'transition-[background-color,border-color,color,box-shadow,transform]',
+  'duration-[var(--duration-base)] ease-soft',
+  'hover:-translate-y-px active:translate-y-0 active:scale-[0.98]',
+  'disabled:opacity-55 disabled:pointer-events-none disabled:shadow-none',
+  'aria-busy:pointer-events-none',
   sizes[size],
   variants[variant],
   className,
@@ -40,11 +78,46 @@ const externalAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' 
 
 {
   isLink ? (
-    <a href={href} class={base} {...externalAttrs}>
+    <a href={href} class={base} id={id} aria-label={ariaLabel} {...externalAttrs}>
       <slot />
+      {external && (
+        <svg
+          class="h-3.5 w-3.5 shrink-0 opacity-70"
+          viewBox="0 0 14 14"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M5 2H2v10h10V9" />
+          <path d="M8.5 1.5H12.5V5.5" />
+          <path d="M12.5 1.5L6.5 7.5" />
+        </svg>
+      )}
     </a>
   ) : (
-    <button class={base}>
+    <button
+      class={base}
+      type={type}
+      id={id}
+      aria-label={ariaLabel}
+      disabled={disabled || busy}
+      aria-busy={busy ? 'true' : undefined}
+    >
+      {busy && (
+        <svg class="h-4 w-4 shrink-0 animate-spin-slow" viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2" opacity="0.25" />
+          <path
+            d="M8 2a6 6 0 016 6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
+      )}
       <slot />
     </button>
   )
