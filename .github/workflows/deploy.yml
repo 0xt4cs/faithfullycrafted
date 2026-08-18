@@ -1,8 +1,14 @@
 name: Scheduled Rebuild and Deploy
 
-# Secondary / escape-hatch rebuild path. The primary schedule lives in the
-# Cloudflare cron Worker (cron-worker/), which fires a Pages Deploy Hook and
-# cannot be disabled by GitHub. See docs/deployment.md.
+# The ONLY thing that builds and deploys this site. Cloudflare Pages is a
+# Direct Upload project, so it never builds from Git and a push deploys nothing
+# -- this workflow builds and uploads with `wrangler pages deploy`.
+#
+# GitHub disables cron workflows after 60 days of repository inactivity, which
+# is exactly what happened in 2026 (111 days stale). The keepalive step below
+# guards against a recurrence, and cron-worker/ can re-enable and dispatch this
+# workflow from outside GitHub if it is ever disabled anyway.
+# See docs/deployment.md.
 on:
   schedule:
     # Every 3 days at 00:00 UTC (08:00 Asia/Manila).

@@ -73,11 +73,11 @@ npm run build:only # build from the existing manifest, no Facebook call
 ```
 
 > [!IMPORTANT]
-> **`FB_PAGE_ID` and `FB_ACCESS_TOKEN` must be set in the Cloudflare Pages project**,
-> not only in GitHub Actions secrets. Generated gallery images are gitignored, so a
-> Cloudflare-side build without credentials produces a site whose gallery falls back to
-> its empty state and whose 291 piece pages are not generated. Cloudflare cannot read
-> GitHub secrets. See `docs/deployment.md`.
+> Pushing to `main` does **not** deploy. This is a Cloudflare Pages Direct Upload project,
+> so Cloudflare is not watching the repository — every deploy is produced by GitHub
+> Actions, which builds with the `FB_*` secrets and uploads with `wrangler`. After merging,
+> publish with **Actions → Scheduled Rebuild and Deploy → Run workflow**. See
+> `docs/deployment.md`.
 
 Outputs static files to `dist/`. The build runs a pre-build script that fetches Facebook posts and downloads/compresses images to `public/gallery/`, then Astro copies everything to `dist/` and pre-renders all pages as static HTML.
 
@@ -110,7 +110,7 @@ scripts/
   lib/categories.mjs     category taxonomy, shared with src/
 functions/
   api/order.ts     Cloudflare Pages Function for order submissions
-cron-worker/       Cloudflare Worker that fires the Pages deploy hook on a schedule
+cron-worker/       Cloudflare Worker that re-enables and dispatches the deploy workflow
 tests/             contrast and dead-class gates (node:test, no framework)
 public/
   fonts/           Self-hosted WOFF2 (Quicksand, DM Sans, Dancing Script)
@@ -180,7 +180,7 @@ npx wrangler pages deploy dist
 Three pipelines, described in full in [`docs/deployment.md`](docs/deployment.md):
 
 - **Cloudflare Pages (auto)** -- builds and deploys on every push to `main`. Handles code changes.
-- **Cloudflare cron Worker** (`cron-worker/`) -- the primary scheduled rebuild. Every 3 days it fires a Pages Deploy Hook to pick up new Facebook posts. Lives on Cloudflare because GitHub disables cron-triggered workflows after 60 days of repository inactivity.
+- **Cloudflare cron Worker** (`cron-worker/`, optional) -- a backup trigger. GitHub disables cron workflows after 60 days of repository inactivity, and a disabled workflow cannot re-enable itself because `workflow_dispatch` is disabled too. This Worker calls the GitHub API to enable and dispatch the workflow, which is the only thing that can recover from that state.
 - **GitHub Actions** (`.github/workflows/deploy.yml`) -- escape hatch with a manual "Run workflow" button, plus its own 3-day schedule. Caches downloaded gallery images and commits the refreshed manifest back to the repo.
 
 Repository secrets required by `.github/workflows/deploy.yml`:
@@ -190,7 +190,7 @@ Repository secrets required by `.github/workflows/deploy.yml`:
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
 
-`FB_PAGE_ID` and `FB_ACCESS_TOKEN` must **also** be set as environment variables on the Cloudflare Pages project, otherwise deploy-hook rebuilds publish the placeholder gallery. The cron Worker needs one secret of its own, `PAGES_DEPLOY_HOOK`.
+This is a Cloudflare Pages **Direct Upload** project: Cloudflare does not build from Git, so a `git push` deploys nothing and `FB_*` is only needed in GitHub Actions secrets. Publish with **Actions → Scheduled Rebuild and Deploy → Run workflow**. The optional cron Worker needs one secret of its own, a fine-grained `GITHUB_TOKEN` with Actions: write.
 
 `.github/workflows/ci.yml` runs `astro check`, `npm run lint`, `prettier --check .`, and `npm run build` on every push and pull request, with no Facebook credentials.
 

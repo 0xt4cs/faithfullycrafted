@@ -5,6 +5,7 @@
   "compatibility_date": "2026-08-01",
 
   // Every 3 days at 18:00 UTC == 02:00 Asia/Manila (UTC+8) the next day.
+  // Offset from the GitHub Actions schedule so the two never collide.
   "triggers": {
     "crons": ["0 18 */3 * *"],
   },
@@ -18,6 +19,18 @@
     "head_sampling_rate": 1,
   },
 
-  // Secret (not declared here on purpose, secrets must never be in config):
-  //   PAGES_DEPLOY_HOOK -> npx wrangler secret put PAGES_DEPLOY_HOOK
+  // This Worker starts the GitHub Actions workflow rather than a Cloudflare
+  // build. The Pages project is Direct Upload, so it has no Deploy Hook, and
+  // the Facebook credentials live in GitHub Actions secrets anyway -- the
+  // Action is what runs `wrangler pages deploy`. See src/index.ts.
+  "vars": {
+    "GITHUB_OWNER": "0xt4cs",
+    "GITHUB_REPO": "faithfullycrafted",
+    "GITHUB_WORKFLOW": "deploy.yml",
+    "GITHUB_REF": "main",
+  },
+
+  // Secret, deliberately not declared here -- secrets must never live in config:
+  //   GITHUB_TOKEN -> npx wrangler secret put GITHUB_TOKEN
+  // A fine-grained PAT scoped to this repository with Actions: read and write.
 }
