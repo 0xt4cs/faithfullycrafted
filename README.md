@@ -1,6 +1,12 @@
 # Faithfully Crafted
 
-A static portfolio website for Ny Girlfriend "faith" a handmade crochet business, built with Astro and Tailwind CSS. Pulls gallery content from a Facebook Page via the Graph API at build time, compresses images locally, and deploys to Cloudflare Pages.
+A static portfolio for **Faithfully Crafted**, Faith's handmade crochet business in
+South Caloocan, Philippines. Built with Astro and Tailwind CSS v4. Gallery content is
+pulled from her Facebook Page via the Graph API at build time, processed into
+responsive AVIF/WebP locally, and deployed to Cloudflare Pages.
+
+Live at **https://faithfullycrafted.pages.dev**. There is no custom domain, and
+therefore no email address — Faith's contact channel is Facebook Messenger.
 
 ## Tech Stack
 
@@ -47,11 +53,26 @@ npm run dev
 
 Opens at `http://localhost:4321`.
 
+### Verify
+
+```bash
+npm run verify     # astro check + eslint + prettier + build + tests
+npm test           # contrast and dead-class gates only
+```
+
 ### Build
 
 ```bash
-npm run build
+npm run build      # fetch gallery, then build
+npm run build:only # build from the existing manifest, no Facebook call
 ```
+
+> [!IMPORTANT]
+> **`FB_PAGE_ID` and `FB_ACCESS_TOKEN` must be set in the Cloudflare Pages project**,
+> not only in GitHub Actions secrets. Generated gallery images are gitignored, so a
+> Cloudflare-side build without credentials produces a site whose gallery falls back to
+> its empty state and whose 291 piece pages are not generated. Cloudflare cannot read
+> GitHub secrets. See `docs/deployment.md`.
 
 Outputs static files to `dist/`. The build runs a pre-build script that fetches Facebook posts and downloads/compresses images to `public/gallery/`, then Astro copies everything to `dist/` and pre-renders all pages as static HTML.
 
@@ -68,32 +89,60 @@ Previews the production build locally.
 ```
 src/
   components/
-    ui/            Reusable atoms (Button, Card, SocialIcon, Divider)
-    layout/        Header (Dynamic Island navbar), Footer, SEOHead
-    sections/      Page sections (Hero, GalleryGrid, FeaturedWorks, ContactCard, CTABanner)
-    interactive/   Client-side JS islands (Lightbox with autoplay, ScrollReveal)
+    ui/            Button, Card, Chip, Divider, EmptyState, GalleryImage, SocialIcon
+    layout/        Header (nav island), Footer, SEOHead
+    sections/      Hero, FeaturedWorks, GalleryGrid, AboutSnippet, ContactCard, CTABanner
+    interactive/   Lightbox, ScrollReveal
   layouts/         Base HTML layout with View Transitions
-  pages/           File-based routing (index, gallery, about, contact, 404)
-  lib/             Facebook API client, SEO schema generators, site constants
+  pages/           index, gallery, piece/[slug], order, about, contact, privacy, terms, 404
+  lib/             gallery data access, schema generators, site constants
   types/           TypeScript interfaces
-  styles/          Global CSS, animations, custom cursors
+  styles/          global.css (design tokens), texture.css, animations.css, cursor.css
+scripts/
+  fetch-gallery.mjs      Facebook fetch + responsive image pipeline
+  prune-gallery.mjs      removes images no longer in the manifest
+  lib/caption.mjs        derives title/alt/body from social captions
+  lib/categories.mjs     category taxonomy, shared with src/
+functions/
+  api/order.ts     Cloudflare Pages Function for order submissions
+cron-worker/       Cloudflare Worker that fires the Pages deploy hook on a schedule
+tests/             contrast and dead-class gates (node:test, no framework)
 public/
-  fonts/           Self-hosted WOFF2 fonts (Quicksand, DM Sans, Dancing Script)
-  gallery/         Downloaded and compressed Facebook post images (gitignored)
-  _headers         Cloudflare Pages security headers
+  fonts/           Self-hosted WOFF2 (Quicksand, DM Sans, Dancing Script)
+  gallery/         Generated images (gitignored) + _manifest.json (tracked)
+  _headers         Security headers
   _redirects       URL redirects and social shortlinks
 ```
 
 ## Features
 
-- Dynamic Island navbar that morphs from transparent to a floating glassmorphism pill on scroll
-- Masonry gallery with direction-aware scroll animations and Load More pagination
-- Lightbox with autoplay slideshow, Instagram Stories-style progress bar, pause/play, touch swipe
-- Skeleton shimmer loading states for gallery images
-- Custom crochet-hook cursor on pointer devices
-- Responsive design with touch vs mouse differentiation
-- Facebook Graph API integration with local image downloading and compression
-- Self-hosted fonts (no third-party CDN requests)
+- 291 per-piece pages generated from the Facebook manifest, each with Product schema,
+  breadcrumbs, prev/next and related pieces
+- Gallery with category filters and search, built as progressive enhancement: every
+  piece renders as static HTML, so it works with JavaScript disabled
+- Custom order form that copies the request and hands off to Messenger, upgrading to a
+  verified API path when Turnstile and KV are configured
+- Responsive AVIF/WebP/JPEG at the widths each original can honestly support, with
+  inline low-quality placeholders and explicit dimensions (CLS measures ~0.0003)
+- Design tokens where every text/surface pair is verified against WCAG AA by a test
+- Nav island that morphs to stitched glass on scroll, with a dashed running-stitch edge
+- Lightbox with opt-in slideshow, focus trap and swipe
+- Self-hosted fonts, no third-party requests
+
+## Design system
+
+Tokens live in a single `@theme` block in `src/styles/global.css`. Two rules matter:
+
+1. **One accent.** `--color-rose-text` (#bf2f62) is the only rose permitted on type; it
+   is the deepest candidate that clears 4.5:1 on every surface including cream. Faith's
+   original brand pink (#e8669a) scores 2.65:1 there — it fails even the 3:1 large-text
+   bar — so it lives on as a decorative fill.
+2. **Decoration never sets `text-*`.** Decorative tokens use `fill-*` or `stroke-*`.
+   `npm test` fails the build if that is violated.
+
+Radii are concentric (inner = outer − padding), elevation is one rose-tinted layered
+family, and type comes from a fluid modular scale. Craft texture comes from material —
+a crochet V-stitch field, paper grain, thread rails — rather than from rotation.
 
 ## Facebook API Setup
 
@@ -151,13 +200,29 @@ Repository secrets required by `.github/workflows/deploy.yml`:
 
 ## Security
 
-- Content Security Policy, HSTS, X-Frame-Options, Permissions-Policy via `_headers`
-- Facebook API token used only at build time, never exposed in client output
-- Facebook CDN image URLs stripped -- images downloaded locally, no external tracking params in HTML
-- Post content sanitized with HTML entity escaping before rendering
-- Self-hosted fonts eliminate third-party tracking
-- All external links use `rel="noopener noreferrer"`
-- No source maps in production build
+- Content Security Policy, HSTS, X-Frame-Options and Permissions-Policy via `_headers`;
+  the CSP allows `challenges.cloudflare.com` only, for Turnstile
+- The Facebook token is used at build time only and never reaches the browser
+- Facebook CDN URLs are discarded — images are downloaded and re-encoded locally, so no
+  third-party tracking parameters appear in the HTML
+- Order submissions are validated server-side, rate limited, and neutralised against
+  header injection before rendering
+- Self-hosted fonts, no third-party requests
+- All external links carry `rel="noopener noreferrer"`
+- No source maps in production
+
+## Accessibility
+
+Enforced by `tests/contrast.test.mjs` rather than by review:
+
+- Every text token clears WCAG AA 4.5:1 against every surface it may sit on
+- Decorative tokens can never be used as a text colour
+- Link hover raises contrast rather than lowering it
+
+Also: skip link, `aria-current` on navigation, visible focus rings, focus trapped in the
+mobile menu and lightbox, `prefers-reduced-motion` honoured throughout, no autoplaying
+content, and scroll-reveal gated on JavaScript being present so a failed script cannot
+leave the page blank.
 
 ## License
 
