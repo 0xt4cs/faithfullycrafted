@@ -1,0 +1,163 @@
+---
+/**
+ * GalleryImage
+ *
+ * The single place responsive gallery images are rendered, so the featured
+ * grid, the gallery, the piece pages and the lightbox cannot drift apart.
+ *
+ * Three problems in the previous markup that this fixes:
+ *
+ *  - No `width`/`height` on any gallery image anywhere, despite the manifest
+ *    holding the dimensions. Every image reserved zero space, so the masonry
+ *    reflowed as each one arrived. Dimensions are now always emitted and the
+ *    wrapper carries the exact aspect-ratio, so the space is reserved before
+ *    a single byte of image arrives.
+ *  - One 1200px JPEG served to every viewport, on a site whose visitors are
+ *    mostly on phones over mobile data. Now AVIF, then WebP, then JPEG, at
+ *    the width the viewport actually needs.
+ *  - The skeleton was a grey shimmer. It is now the piece's own colours,
+ *    inlined as a ~20px base64 placeholder, so the load reads as the image
+ *    resolving rather than as a grey box being replaced.
+ */
+import type { GalleryItem } from '@typedefs/index';
+
+interface Props {
+  item: GalleryItem;
+  /** The `sizes` attribute. Get this right or srcset cannot help you. */
+  sizes: string;
+  loading?: 'eager' | 'lazy';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  /** Extra classes on the <img>. */
+  class?: string;
+  /** Classes on the aspect-ratio wrapper. */
+  wrapperClass?: string;
+  /** Overrides alt when the image is purely decorative in context. */
+  alt?: string;
+  /** Cap the widest variant offered, e.g. small thumbnails. */
+  maxWidth?: number;
+  /**
+   * Inline the base64 placeholder. Each is ~220 bytes; on a 291-item gallery
+   * that is 65 kB of HTML spent on placeholders below the fold, so the grid
+   * only opts in for the first screenful.
+   */
+  showPlaceholder?: boolean;
+  /**
+   * `natural` keeps the photo's own ratio — correct on a piece page, where the
+   * image is the subject. `square` crops to 1:1 for grids: 80% of the corpus is
+   * already 720x720, so letting the remaining 20% set their own height left
+   * ragged rows where card captions and baselines did not line up.
+   */
+  aspect?: 'natural' | 'square';
+}
+
+const {
+  item,
+  sizes,
+  loading = 'lazy',
+  fetchpriority,
+  class: className = '',
+  wrapperClass = '',
+  alt,
+  maxWidth,
+  showPlaceholder = true,
+  aspect = 'natural',
+} = Astro.props;
+
+const cap = (widths: number[]) => (maxWidth ? widths.filter((w) => w <= maxWidth) : widths);
+
+const srcset = (widths: number[], ext: string) =>
+  cap(widths)
+    .map((w) => `/gallery/${item.hash}-${w}.${ext} ${w}w`)
+    .join(', ');
+
+const avif = srcset(item.variants?.avif ?? [], 'avif');
+const webp = srcset(item.variants?.webp ?? [], 'webp');
+
+// The JPEG fallback is a single width, so it needs no srcset.
+const fallbackSrc = `/gallery/${item.hash}-800.jpg`;
+---
+
+<div
+  class={`relative overflow-hidden bg-surface ${aspect === 'square' ? 'aspect-square' : ''} ${wrapperClass}`}
+  style={[
+    aspect === 'square' ? '' : `aspect-ratio: ${item.width} / ${item.height}`,
+    showPlaceholder && item.lqip
+      ? `background-image: url('${item.lqip}'); background-size: cover; background-position: center`
+      : '',
+  ]
+    .filter(Boolean)
+    .join('; ')}
+>
+  <picture>
+    {avif && <source type="image/avif" srcset={avif} sizes={sizes} />}
+    {webp && <source type="image/webp" srcset={webp} sizes={sizes} />}
+    <img
+      src={fallbackSrc}
+      alt={alt ?? item.alt}
+      width={item.width}
+      height={item.height}
+      loading={loading}
+      decoding={loading === 'eager' ? 'sync' : 'async'}
+      fetchpriority={fetchpriority}
+      class={`h-full w-full object-cover ${className}`}
+      data-gallery-image
+    />
+  </picture>
+</div>
+
+<script>
+  /**
+   * Fade each image in over its own placeholder once decoded, and swap in a
+   * drawn fallback if the file 404s. The previous build had no error state at
+   * all, so a missing derivative showed the browser's broken-image glyph.
+   */
+  function initGalleryImages() {
+    const images = document.querySelectorAll<HTMLImageElement>('img[data-gallery-image]');
+
+    images.forEach((img) => {
+      if (img.dataset.bound) return;
+      img.dataset.bound = 'true';
+
+      const reveal = () => {
+        img.style.opacity = '1';
+        const wrapper = img.closest<HTMLElement>('div[style*="aspect-ratio"]');
+        // Drop the placeholder once the real pixels are down, so the blurred
+        // version cannot show through a transparent PNG.
+        if (wrapper) wrapper.style.backgroundImage = 'none';
+      };
+
+      const fail = () => {
+        const wrapper = img.closest<HTMLElement>('div[style*="aspect-ratio"]');
+        if (!wrapper || wrapper.dataset.failed) return;
+        wrapper.dataset.failed = 'true';
+        wrapper.style.backgroundImage = 'none';
+        img.remove();
+        wrapper.insertAdjacentHTML(
+          'beforeend',
+          `<div class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface px-4 text-center">
+             <svg class="h-10 w-10" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+               <circle cx="20" cy="20" r="14" class="stroke-rose-tint" stroke-width="2.4"/>
+               <path d="M13 24c3-6 6-7 7.5-13M16 12c2.5 6 5 9 10 11" class="stroke-rose-tint" stroke-width="1.8" stroke-linecap="round"/>
+             </svg>
+             <p class="text-step--1 text-ink-subtle">This photo could not be loaded</p>
+           </div>`,
+        );
+      };
+
+      img.style.transition = 'opacity 420ms var(--ease-soft, ease)';
+      if (img.complete && img.naturalWidth > 0) {
+        reveal();
+      } else if (img.complete) {
+        fail();
+      } else {
+        img.style.opacity = '0';
+        img.addEventListener('load', reveal, { once: true });
+        img.addEventListener('error', fail, { once: true });
+      }
+    });
+  }
+
+  initGalleryImages();
+  document.addEventListener('astro:after-swap', initGalleryImages);
+  document.addEventListener('gallery:items-added', initGalleryImages);
+</script>

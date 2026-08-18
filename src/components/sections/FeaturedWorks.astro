@@ -1,113 +1,93 @@
 ---
+/**
+ * FeaturedWorks
+ *
+ * The previous version rendered the same six items twice — once in a mobile
+ * carousel and once in a desktop grid — hiding one branch with `md:hidden`.
+ * Both branches were in the DOM, so every visitor downloaded twelve images to
+ * see six, and the lightbox bound duplicate handlers. This renders once and
+ * lets CSS change the layout: a snap-scroll row on small screens, a grid from
+ * the medium breakpoint up.
+ *
+ * Cards are calm here. Tape and tilt live only in the hero.
+ */
 import type { GalleryItem } from '@typedefs/index';
+import Card from '@components/ui/Card.astro';
+import GalleryImage from '@components/ui/GalleryImage.astro';
 
 interface Props {
   items: GalleryItem[];
+  limit?: number;
 }
 
-const { items } = Astro.props;
-const featured = items.slice(0, 6);
+const { items, limit = 6 } = Astro.props;
+const featured = items.slice(0, limit);
 ---
 
-<section class="py-16 sm:py-20 bg-background" aria-label="Latest creations">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12" data-reveal="up">
-      <h2 class="font-heading text-3xl sm:text-4xl font-700 text-text">Latest Creations</h2>
-      <p class="mt-3 text-text-muted max-w-md mx-auto">
-        Each piece is handcrafted with care — from cozy amigurumi to one-of-a-kind gifts.
-      </p>
-    </div>
-
-    <!-- Mobile: horizontal scroll carousel -->
-    <div class="md:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 px-4 pb-4">
-      <div class="flex gap-4" style="width: max-content;">
-        {
-          featured.map((item, i) => (
-            <div
-              class="snap-center flex-shrink-0 w-[280px]"
-              data-reveal="up"
-              data-reveal-delay={String(i * 100)}
+{
+  featured.length > 0 && (
+    <section class="py-20 sm:py-24" aria-labelledby="featured-heading">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div data-reveal="up">
+            <p class="label">Fresh off the hook</p>
+            <h2
+              id="featured-heading"
+              class="mt-2 font-heading text-step-4 font-bold text-ink-display"
             >
-              <div
-                class={`group relative rounded-xl overflow-hidden bg-white p-3 shadow-md shadow-primary/10 transition-transform duration-500 ease-out hover:rotate-0 hover:scale-[1.02] ${i % 2 === 0 ? 'rotate-[-2deg]' : 'rotate-[2deg]'}`}
-                data-lightbox
-                data-lightbox-src={item.imageUrl}
-                data-lightbox-alt={item.caption}
-                data-lightbox-caption={`${item.caption}${item.date !== 'Coming soon' ? ` — ${item.date}` : ''}`}
-              >
-                <!-- Washi Tape piece -->
-                <div class="absolute -top-1 left-1/2 -translate-x-1/2 w-12 h-4 bg-primary/40 border border-white/40 shadow-sm rotate-2 z-20 backdrop-blur-sm opacity-80" style="clip-path: polygon(2% 10%, 98% 0%, 100% 90%, 0% 100%);"></div>
-
-                <div class="skeleton-shimmer h-[260px] rounded-lg overflow-hidden relative">
-                  <img
-                    src={item.imageUrl}
-                    alt={item.caption}
-                    loading="lazy"
-                    class="w-full h-full object-cover relative z-[1]"
-                  />
-                  <div class="absolute inset-0 border border-black/5 rounded-lg pointer-events-none mix-blend-overlay"></div>
-                </div>
-                
-                <div class="pt-3 pb-1 text-center">
-                  <p class="font-brand text-xl text-primary-bold/90 drop-shadow-sm line-clamp-1">{item.caption}</p>
-                </div>
-              </div>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-
-    <!-- Tablet+: Grid -->
-    <div class="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {
-        featured.map((item, i) => (
-          <div
-            data-reveal="up"
-            data-reveal-delay={String(i * 100)}
-          >
-            <div
-              class={`group relative rounded-xl overflow-hidden bg-white p-3 shadow-md shadow-primary/10 transition-transform duration-500 ease-out hover:rotate-0 hover:z-10 hover:shadow-xl hover:shadow-primary/15 hover:scale-[1.02] ${i % 2 === 0 ? 'rotate-[2deg]' : 'rotate-[-2deg]'}`}
-              data-lightbox
-              data-lightbox-src={item.imageUrl}
-              data-lightbox-alt={item.caption}
-              data-lightbox-caption={`${item.caption}${item.date !== 'Coming soon' ? ` — ${item.date}` : ''}`}
-            >
-              <!-- Washi Tape piece -->
-              <div class="absolute -top-1 left-1/2 -translate-x-1/2 w-14 h-4 bg-primary/40 border border-white/40 shadow-sm -rotate-2 z-20 backdrop-blur-sm opacity-80" style="clip-path: polygon(4% 0%, 98% 10%, 100% 100%, 0% 90%);"></div>
-
-              <div class="overflow-hidden skeleton-shimmer h-[260px] rounded-lg relative object-cover">
-                <img
-                  src={item.imageUrl}
-                  alt={item.caption}
-                  loading="lazy"
-                  class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 relative z-[1]"
-                />
-                <div class="absolute inset-0 border border-black/5 rounded-lg pointer-events-none mix-blend-overlay"></div>
-              </div>
-              
-              <div class="pt-4 pb-1 text-center">
-                <p class="font-brand text-2xl text-primary-bold/90 drop-shadow-sm line-clamp-1">{item.caption}</p>
-                {item.date !== 'Coming soon' && (
-                  <p class="text-text-muted text-xs mt-1 font-body">{item.date}</p>
-                )}
-              </div>
-            </div>
+              Latest creations
+            </h2>
           </div>
-        ))
-      }
-    </div>
+          <a
+            href="/gallery/"
+            class="no-underline-reset group inline-flex items-center gap-2 font-heading text-step-0 font-semibold text-rose-text transition-colors hover:text-rose-hover"
+            data-reveal="fade"
+          >
+            See all {items.length} pieces
+            <svg
+              class="h-4 w-4 transition-transform duration-[var(--duration-base)] ease-soft group-hover:translate-x-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
+        </div>
 
-    <div class="text-center mt-10" data-reveal="fade">
-      <a
-        href="/gallery/"
-        class="inline-flex items-center gap-2 font-heading font-600 text-primary-bold hover:text-lavender transition-colors"
-      >
-        See all creations
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-        </svg>
-      </a>
-    </div>
-  </div>
-</section>
+        <ul
+          class="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3"
+          role="list"
+        >
+          {featured.map((item, i) => (
+            <li
+              class="w-[16rem] flex-shrink-0 snap-center md:w-auto"
+              data-reveal="up"
+              data-reveal-delay={String((i % 3) * 90)}
+            >
+              <Card href={item.href} class="h-full">
+                <GalleryImage
+                  item={item}
+                  wrapperClass="rounded-inner"
+                  sizes="(min-width: 1024px) 22rem, (min-width: 768px) 45vw, 16rem"
+                  maxWidth={800}
+                  aspect="square"
+                />
+                <div class="px-2 pb-1 pt-4">
+                  <p class="line-clamp-2 font-heading text-step-0 font-semibold text-ink-display">
+                    {item.title}
+                  </p>
+                  <p class="label mt-1.5">{item.categoryLabel}</p>
+                </div>
+              </Card>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}

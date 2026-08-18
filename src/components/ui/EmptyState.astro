@@ -1,0 +1,92 @@
+---
+/**
+ * EmptyState
+ *
+ * Replaces the previous fallback, which shipped eight `placehold.co` URLs
+ * straight to production whenever the Facebook fetch came back empty. That
+ * meant a real visitor could see grey third-party placeholder tiles on the
+ * live site, and it leaked requests to an external domain.
+ *
+ * This is a composed state with a next action instead: it says what is
+ * happening in plain language and offers a way to reach Faith. Statement,
+ * not exclamation.
+ */
+import Button from '@components/ui/Button.astro';
+import { SOCIALS } from '@lib/constants';
+
+interface Props {
+  /** `gallery` = nothing published yet. `filter` = filters excluded everything. */
+  kind?: 'gallery' | 'filter';
+  class?: string;
+}
+
+const { kind = 'gallery', class: className = '' } = Astro.props;
+
+const copy = {
+  gallery: {
+    title: 'New pieces are on the hook',
+    body: "Faith's latest work is being photographed and will appear here shortly. In the meantime, her Facebook page has everything she has finished recently.",
+  },
+  filter: {
+    title: 'Nothing matches that yet',
+    body: 'Try a different category or clear the search. If you have something specific in mind, Faith takes custom requests.',
+  },
+};
+
+const { title, body } = copy[kind];
+---
+
+<div
+  class={`mx-auto flex max-w-md flex-col items-center px-6 py-16 text-center ${className}`}
+  data-empty-state={kind}
+>
+  {/* An empty basket with a resting hook — drawn, not an icon-set glyph. */}
+  <svg class="mb-6 h-24 w-24" viewBox="0 0 96 96" fill="none" aria-hidden="true">
+    <ellipse cx="48" cy="70" rx="30" ry="7" class="fill-rose-brand/10"></ellipse>
+    <path
+      d="M22 50h52l-5 22a6 6 0 01-6 5H33a6 6 0 01-6-5z"
+      class="stroke-rose-tint"
+      stroke-width="2.5"
+      stroke-linejoin="round"></path>
+    <path
+      d="M30 50v22M40 50v22M50 50v22M60 50v22M70 50v20"
+      class="stroke-rose-tint"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      opacity="0.7"></path>
+    <path d="M22 50h52" class="stroke-rose-brand/50" stroke-width="2.5" stroke-linecap="round"
+    ></path>
+    {/* hook resting against the rim */}
+    <path d="M62 46 L78 30" class="stroke-rose-brand/60" stroke-width="2.4" stroke-linecap="round"
+    ></path>
+    <path
+      d="M78 30 q5-3 6.5 1.5 q1 4-3.5 4.5"
+      class="stroke-rose-brand/60"
+      stroke-width="2.4"
+      stroke-linecap="round"></path>
+    <circle cx="30" cy="38" r="8" class="fill-rose-brand/12"></circle>
+    <path
+      d="M24 42c2.5-5 5-6 6.5-11M26 32c2 5 4 7 8.5 9.5"
+      class="stroke-rose-brand/45"
+      stroke-width="1.5"
+      stroke-linecap="round"></path>
+  </svg>
+
+  <h2 class="font-heading text-step-2 font-bold text-ink-display">{title}</h2>
+  <p class="mt-3 text-ink-muted">{body}</p>
+
+  {
+    kind === 'gallery' && (
+      <Button href={SOCIALS.facebook.url} variant="secondary" size="md" external class="mt-7">
+        See Faith's Facebook page
+      </Button>
+    )
+  }
+  {
+    kind === 'filter' && (
+      <Button href={SOCIALS.facebook.messenger} variant="secondary" size="md" external class="mt-7">
+        Ask Faith for a custom piece
+      </Button>
+    )
+  }
+</div>

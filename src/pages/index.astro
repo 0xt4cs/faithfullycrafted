@@ -5,16 +5,16 @@ import FeaturedWorks from '@components/sections/FeaturedWorks.astro';
 import AboutSnippet from '@components/sections/AboutSnippet.astro';
 import CTABanner from '@components/sections/CTABanner.astro';
 import Divider from '@components/ui/Divider.astro';
-import { getGalleryItems } from '@lib/facebook';
+import { getGalleryItems } from '@lib/gallery';
 
-const items = await getGalleryItems();
+const items = getGalleryItems();
 ---
 
-<Layout>
-  <Hero />
+<Layout preloadImage="/faith-640.avif">
+  <Hero pieceCount={items.length} />
   <FeaturedWorks items={items} />
-  <Divider />
+  <Divider variant={3} />
   <AboutSnippet />
-  <Divider />
+  <Divider variant={1} />
   <CTABanner />
 </Layout>

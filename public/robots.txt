@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://faithfullycrafted.ph/sitemap-index.xml
+Sitemap: https://faithfullycrafted.pages.dev/sitemap-index.xml

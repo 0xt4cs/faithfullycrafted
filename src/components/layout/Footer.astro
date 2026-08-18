@@ -1,28 +1,38 @@
 ---
+/**
+ * Footer
+ *
+ * Token migration only in structure, but two real bugs were fixed here:
+ * the two column headings used a font-weight utility that does not exist in
+ * Tailwind and emitted no CSS, so they rendered at the same weight as the links
+ * below them. They now use the `.label` treatment from global.css.
+ *
+ * Link colour is deliberately left to the global `a` rule in global.css
+ * (rose-text, darkening to rose-hover on hover) rather than restated with a
+ * utility here — that rule is unlayered, so a `text-*` utility on a link
+ * would silently lose to it and read as dead code.
+ */
 import { SITE, SOCIALS, NAV_ITEMS } from '@lib/constants';
 import SocialIcon from '@components/ui/SocialIcon.astro';
 ---
 
-<footer class="bg-surface/60 border-t border-primary/10 mt-auto">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+<footer class="mt-auto border-t border-rose-tint/60 bg-surface/60">
+  <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-12">
       <!-- Brand -->
       <div class="text-center md:text-left">
-        <span class="text-2xl font-brand text-primary-bold">{SITE.name}</span>
-        <p class="mt-2 text-sm text-text-muted max-w-xs mx-auto md:mx-0">{SITE.tagline}</p>
+        <span class="font-brand text-step-2 text-rose-text">{SITE.name}</span>
+        <p class="mx-auto mt-2 max-w-xs text-step--1 text-ink-muted md:mx-0">{SITE.tagline}</p>
       </div>
 
       <!-- Quick Links -->
       <nav class="text-center" aria-label="Footer navigation">
-        <h3 class="font-heading font-700 text-text mb-3 text-sm uppercase tracking-wider">Pages</h3>
-        <ul class="space-y-2" role="list">
+        <h3 class="label mb-4 font-heading font-semibold">Pages</h3>
+        <ul class="space-y-2.5" role="list">
           {
             NAV_ITEMS.map((item) => (
               <li>
-                <a
-                  href={item.href}
-                  class="text-text-muted hover:text-primary-bold transition-colors text-sm"
-                >
+                <a href={item.href} class="text-step--1">
                   {item.label}
                 </a>
               </li>
@@ -33,30 +43,33 @@ import SocialIcon from '@components/ui/SocialIcon.astro';
 
       <!-- Social -->
       <div class="text-center md:text-right">
-        <h3 class="font-heading font-700 text-text mb-3 text-sm uppercase tracking-wider">
-          Connect
-        </h3>
-        <div class="flex items-center justify-center md:justify-end gap-4">
+        <h3 class="label mb-4 font-heading font-semibold">Connect</h3>
+        <div class="flex items-center justify-center gap-3 md:justify-end">
           <SocialIcon platform="facebook" href={SOCIALS.facebook.url} />
           <SocialIcon platform="instagram" href={SOCIALS.instagram.url} />
           <SocialIcon platform="messenger" href={SOCIALS.facebook.messenger} />
         </div>
         <a
-          href={`mailto:${SITE.email}`}
-          class="inline-block mt-3 text-sm text-text-muted hover:text-primary-bold transition-colors"
+          href={SOCIALS.facebook.messenger}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="mt-4 inline-block text-step--1"
         >
-          {SITE.email}
+          Message Faith on Messenger
         </a>
       </div>
     </div>
 
-    <div class="mt-10 pt-6 border-t border-primary/10 flex flex-col sm:flex-row items-center justify-between gap-3">
-      <p class="text-xs text-text-muted">
-        &copy; {new Date().getFullYear()} {SITE.name}.
+    <div
+      class="mt-12 flex flex-col items-center justify-between gap-3 border-t border-rose-tint/60 pt-6 sm:flex-row"
+    >
+      <p class="tabular text-step--1 text-ink-subtle">
+        &copy; {new Date().getFullYear()}
+        {SITE.name}.
       </p>
-      <div class="flex items-center gap-4">
-        <a href="/privacy/" class="text-xs text-text-muted hover:text-primary-bold transition-colors">Privacy Policy</a>
-        <a href="/terms/" class="text-xs text-text-muted hover:text-primary-bold transition-colors">Terms of Service</a>
+      <div class="flex items-center gap-5">
+        <a href="/privacy/" class="text-step--1">Privacy Policy</a>
+        <a href="/terms/" class="text-step--1">Terms of Service</a>
       </div>
     </div>
   </div>

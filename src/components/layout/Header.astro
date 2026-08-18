@@ -1,77 +1,116 @@
 ---
 import { NAV_ITEMS, SITE } from '@lib/constants';
 
-const isHome = Astro.url.pathname === '/';
+const path = Astro.url.pathname;
+const isHome = path === '/';
+
+/** A nav item is current if it is the exact page, or an ancestor of it. */
+function isCurrent(href: string) {
+  if (href === '/') return isHome;
+  return path === href || path.startsWith(href);
+}
+
+const mainNav = NAV_ITEMS.filter((item) => item.href !== '/order/');
+const orderItem = NAV_ITEMS.find((item) => item.href === '/order/');
 ---
+
+{
+  /*
+  Sentinel for the scroll state. An IntersectionObserver watching this beats a
+  scroll listener: no work on the main thread per scroll event, and no
+  requestAnimationFrame throttling to get wrong.
+*/
+}
+<div id="nav-sentinel" aria-hidden="true" class="absolute top-0 h-20 w-px"></div>
 
 <header
   id="main-header"
-  class="fixed left-1/2 -translate-x-1/2 z-[40]"
+  class="fixed left-1/2 z-40 -translate-x-1/2"
   data-home={isHome ? '' : undefined}
 >
   <nav
     id="nav-inner"
-    aria-label="Main navigation"
-    class="mx-auto px-6 sm:px-8 lg:px-10 h-[4.5rem] flex items-center justify-between
-           transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
-           max-w-7xl gap-10"
+    aria-label="Main"
+    class="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-6 px-5 sm:px-7 lg:px-9"
   >
-    <!-- Logo (hidden by default on home, fades in with island) -->
-    <a href="/" class="nav-brand flex items-center gap-2 group shrink-0" aria-label="Faithfully Crafted Home">
-      <span class="text-xl sm:text-2xl md:text-3xl font-brand text-primary-bold transition-transform group-hover:scale-105">
+    <a
+      href="/"
+      class="nav-brand no-underline-reset group flex shrink-0 items-center gap-2"
+      aria-label={`${SITE.name} — home`}
+    >
+      <span
+        class="font-brand text-step-2 text-rose-text transition-transform duration-[var(--duration-base)] ease-soft group-hover:scale-[1.03]"
+      >
         {SITE.name}
       </span>
     </a>
 
-    <!-- Desktop Nav -->
-    <ul class="hidden md:flex items-center gap-9 lg:gap-12" role="list">
+    <ul class="hidden items-center gap-7 md:flex lg:gap-9" role="list">
       {
-        NAV_ITEMS.map((item) => (
+        mainNav.map((item) => (
           <li>
             <a
               href={item.href}
-              class="relative font-heading font-semibold text-base text-text hover:text-primary-bold transition-colors py-1
-                     after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary-bold after:transition-all after:duration-300
-                     hover:after:w-full"
+              aria-current={isCurrent(item.href) ? 'page' : undefined}
+              class="nav-link no-underline-reset relative py-1 font-heading text-step-0 font-semibold text-ink-body transition-colors duration-[var(--duration-fast)] hover:text-rose-text"
             >
               {item.label}
             </a>
           </li>
         ))
       }
+      {
+        orderItem && (
+          <li>
+            <a
+              href={orderItem.href}
+              aria-current={isCurrent(orderItem.href) ? 'page' : undefined}
+              class="no-underline-reset inline-flex min-h-[40px] items-center rounded-control bg-rose-text px-4 py-2 font-heading text-step--1 font-semibold text-white shadow-1 transition-[background-color,box-shadow,transform] duration-[var(--duration-base)] ease-soft hover:-translate-y-px hover:bg-rose-hover hover:shadow-2"
+            >
+              {orderItem.label} a piece
+            </a>
+          </li>
+        )
+      }
     </ul>
 
-    <!-- Mobile Hamburger (animated 3-bar to X) -->
     <button
       id="mobile-menu-btn"
-      class="md:hidden relative w-12 h-12 flex items-center justify-center rounded-xl hover:bg-white/20 transition-colors shrink-0"
+      class="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-control transition-colors duration-[var(--duration-fast)] hover:bg-rose-wash md:hidden"
       aria-label="Open menu"
       aria-expanded="false"
+      aria-controls="mobile-menu"
     >
-      <div class="w-[22px] h-[18px] relative flex flex-col justify-between">
-        <span class="hamburger-bar block h-[2px] w-full bg-text rounded-full transition-all duration-300 origin-center"></span>
-        <span class="hamburger-bar block h-[2px] w-full bg-text rounded-full transition-all duration-300 origin-center"></span>
-        <span class="hamburger-bar block h-[2px] w-full bg-text rounded-full transition-all duration-300 origin-center"></span>
-      </div>
+      <span class="relative flex h-[18px] w-[22px] flex-col justify-between">
+        <span
+          class="hamburger-bar block h-[2px] w-full origin-center rounded-full bg-ink-body transition-all duration-[var(--duration-base)] ease-soft"
+        ></span>
+        <span
+          class="hamburger-bar block h-[2px] w-full origin-center rounded-full bg-ink-body transition-all duration-[var(--duration-base)] ease-soft"
+        ></span>
+        <span
+          class="hamburger-bar block h-[2px] w-full origin-center rounded-full bg-ink-body transition-all duration-[var(--duration-base)] ease-soft"
+        ></span>
+      </span>
     </button>
   </nav>
 </header>
 
-<!-- Spacer to push content below fixed header -->
-{!isHome && <div class="h-[5.5rem]"></div>}
+{!isHome && <div class="h-[5.5rem]" />}
 
-<!-- Mobile Menu Overlay (OUTSIDE header for correct z-index) -->
 <div
   id="mobile-menu"
-  class="fixed inset-0 z-[90] md:hidden
-         opacity-0 pointer-events-none transition-all duration-400"
+  class="pointer-events-none fixed inset-0 z-[90] opacity-0 transition-opacity duration-[var(--duration-base)] md:hidden"
   aria-hidden="true"
   inert
 >
-  <div class="absolute inset-0 bg-gradient-to-b from-cream/98 via-background/98 to-surface/98 backdrop-blur-2xl"></div>
+  <div
+    class="absolute inset-0 bg-gradient-to-b from-cream/95 via-page/97 to-surface/97 backdrop-blur-2xl"
+  >
+  </div>
 
-  <div class="relative h-full flex flex-col items-center justify-center gap-6">
-    <span class="text-4xl font-brand text-primary-bold mobile-nav-item" style="--nav-i:0">
+  <div class="relative flex h-full flex-col items-center justify-center gap-6 px-6">
+    <span class="mobile-nav-item font-brand text-step-5 text-rose-text" style="--nav-i:0">
       {SITE.name}
     </span>
 
@@ -79,7 +118,8 @@ const isHome = Astro.url.pathname === '/';
       NAV_ITEMS.map((item, i) => (
         <a
           href={item.href}
-          class="mobile-nav-item text-2xl font-heading font-semibold text-text hover:text-primary-bold transition-colors"
+          aria-current={isCurrent(item.href) ? 'page' : undefined}
+          class="mobile-nav-item no-underline-reset font-heading text-step-3 font-semibold text-ink-body transition-colors hover:text-rose-text aria-[current=page]:text-rose-text"
           style={`--nav-i:${i + 1}`}
         >
           {item.label}
@@ -87,24 +127,32 @@ const isHome = Astro.url.pathname === '/';
       ))
     }
 
-    <div class="mobile-nav-item mt-4 opacity-40" style="--nav-i:5" aria-hidden="true">
-      <svg class="w-10 h-10 text-primary animate-spin-slow" viewBox="0 0 40 40" fill="currentColor">
-        <circle cx="20" cy="20" r="16" opacity="0.3" />
-        <path d="M10 26c5-10 10-12 12-22M14 8c4 10 8 14 16 18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5" />
+    <div class="mobile-nav-item mt-2" style={`--nav-i:${NAV_ITEMS.length + 1}`} aria-hidden="true">
+      <svg class="h-10 w-10 animate-spin-slow" viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="15" class="fill-rose-brand/12"></circle>
+        <path
+          d="M11 26c5-10 10-12 12-22M14 9c4 10 8 14 16 18"
+          class="stroke-rose-brand/45"
+          stroke-width="1.8"
+          stroke-linecap="round"></path>
       </svg>
     </div>
   </div>
 </div>
 
 <style>
-  /* ---- Brand: hidden at top on HOME page only, fades in with island ---- */
+  /* On the home page the brand is hidden at the top of the scroll — the hero
+     already says the name in large type, so repeating it in the nav is
+     redundant. It fades in with the island. */
   .nav-brand {
-    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    transition:
+      opacity 0.35s ease,
+      transform 0.35s var(--ease-soft);
   }
 
   #main-header[data-home] .nav-brand {
     opacity: 0;
-    transform: translateY(-6px) scale(0.95);
+    transform: translateY(-6px) scale(0.96);
     pointer-events: none;
   }
 
@@ -114,79 +162,95 @@ const isHome = Astro.url.pathname === '/';
     pointer-events: auto;
   }
 
-  /* Pink glow so brand text pops against glass */
-  #main-header.nav-island .nav-brand span {
-    text-shadow: 0 1px 10px rgba(232, 102, 154, 0.35);
+  /* Active page: a stitched underline, drawn rather than a solid rule. */
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 0;
+    background-image: linear-gradient(to right, var(--color-rose-text) 0 5px, transparent 5px 9px);
+    background-size: 9px 2px;
+    background-repeat: repeat-x;
+    transition: width 0.3s var(--ease-soft);
   }
 
-  /* ---- Hamburger to X animation ---- */
-  [aria-expanded="true"] .hamburger-bar:nth-child(1) {
+  .nav-link:hover::after,
+  .nav-link[aria-current='page']::after {
+    width: 100%;
+  }
+
+  .nav-link[aria-current='page'] {
+    color: var(--color-rose-text);
+  }
+
+  [aria-expanded='true'] .hamburger-bar:nth-child(1) {
     transform: translateY(8px) rotate(45deg);
   }
-  [aria-expanded="true"] .hamburger-bar:nth-child(2) {
+  [aria-expanded='true'] .hamburger-bar:nth-child(2) {
     opacity: 0;
     transform: scaleX(0);
   }
-  [aria-expanded="true"] .hamburger-bar:nth-child(3) {
+  [aria-expanded='true'] .hamburger-bar:nth-child(3) {
     transform: translateY(-8px) rotate(-45deg);
   }
 
-  /* ---- Mobile nav staggered slide-in ---- */
   .mobile-nav-item {
     opacity: 0;
-    transform: translateX(40px);
-    transition: opacity 0.35s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-    transition-delay: calc(var(--nav-i, 0) * 70ms);
+    transform: translateY(14px);
+    transition:
+      opacity 0.35s ease,
+      transform 0.4s var(--ease-soft);
+    transition-delay: calc(var(--nav-i, 0) * 60ms);
   }
 
   #mobile-menu.menu-open .mobile-nav-item {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 
-  /* ---- Persistent Pill Layout ---- */
   #main-header {
     top: 16px;
     width: calc(100% - 32px);
     border-radius: 9999px;
     background: transparent;
-    border: 1px solid transparent;
-    /* Lowkey, completely smooth transition ONLY for colors/blur */
-    transition: background-color 0.4s ease-in-out, backdrop-filter 0.4s ease-in-out, border-color 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
+    /* Same width in both states so toggling the island causes no layout shift. */
+    border: 2px dashed transparent;
+    transition:
+      background-color 0.4s ease-in-out,
+      backdrop-filter 0.4s ease-in-out,
+      border-color 0.4s ease-in-out,
+      box-shadow 0.4s ease-in-out;
   }
 
   @media (min-width: 768px) {
     #main-header {
       width: calc(100% - 48px);
-      max-width: 80rem; /* 1280px */
+      max-width: 76rem;
     }
   }
 
-  /* ---- Glassmorphism on Scroll ---- */
+  /* The dashed edge stays — it reads as a running stitch around the pill,
+     which is the most on-brand detail in the whole nav, and it is the thing
+     that stops the island looking like generic glassmorphism.
+     Two changes from the original: 2px instead of 3px, and the accessible rose
+     at a higher alpha instead of #e8669a at 40%, which was faint enough to
+     look unintentional. Combined with the inner highlight it now reads as
+     stitched glass rather than an unfinished outline. */
   #main-header.nav-island {
-    background: rgba(255, 245, 247, 0.75);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 3px dashed rgba(232, 102, 154, 0.4);
-    box-shadow: 0 8px 32px rgba(232, 102, 154, 0.12),
-                0 2px 8px rgba(0, 0, 0, 0.05);
+    background: rgb(255 245 247 / 0.72);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    border-color: rgb(191 47 98 / 0.55);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.75),
+      var(--shadow-2);
   }
 
-  /* Padding adjustments internally for pill shape */
-  #main-header #nav-inner {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-  @media (min-width: 640px) {
-    #main-header #nav-inner {
-      padding-left: 2rem;
-      padding-right: 2rem;
-    }
-  }
-  @media (min-width: 1024px) {
-    #main-header #nav-inner {
-      padding-left: 2.5rem;
-      padding-right: 2.5rem;
+  @supports not (backdrop-filter: blur(1px)) {
+    #main-header.nav-island {
+      background: rgb(255 245 247 / 0.96);
     }
   }
 </style>
@@ -196,9 +260,13 @@ const isHome = Astro.url.pathname === '/';
     const btn = document.getElementById('mobile-menu-btn');
     const menu = document.getElementById('mobile-menu');
     const header = document.getElementById('main-header');
+    const sentinel = document.getElementById('nav-sentinel');
     if (!btn || !menu || !header) return;
 
     let menuOpen = false;
+
+    const focusables = () =>
+      Array.from(menu.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'));
 
     function openMenu() {
       menuOpen = true;
@@ -206,43 +274,64 @@ const isHome = Astro.url.pathname === '/';
       menu!.classList.remove('opacity-0', 'pointer-events-none');
       menu!.classList.add('opacity-100', 'pointer-events-auto', 'menu-open');
       btn!.setAttribute('aria-expanded', 'true');
+      btn!.setAttribute('aria-label', 'Close menu');
       menu!.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
+      focusables()[0]?.focus();
     }
 
-    function closeMenu() {
+    function closeMenu(returnFocus = true) {
       menuOpen = false;
       menu!.classList.add('opacity-0', 'pointer-events-none');
       menu!.classList.remove('opacity-100', 'pointer-events-auto', 'menu-open');
       btn!.setAttribute('aria-expanded', 'false');
+      btn!.setAttribute('aria-label', 'Open menu');
       menu!.setAttribute('aria-hidden', 'true');
       menu!.setAttribute('inert', '');
       document.body.style.overflow = '';
+      if (returnFocus) btn!.focus();
     }
 
     btn.addEventListener('click', () => (menuOpen ? closeMenu() : openMenu()));
-    menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+    menu
+      .querySelectorAll('a')
+      .forEach((link) => link.addEventListener('click', () => closeMenu(false)));
+
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && menuOpen) closeMenu();
+      if (!menuOpen) return;
+
+      if (e.key === 'Escape') {
+        closeMenu();
+        return;
+      }
+
+      // Keep focus inside the open overlay. Without this, tabbing walks
+      // through the page behind the menu.
+      if (e.key === 'Tab') {
+        const items = focusables();
+        if (items.length === 0) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     });
 
-    let ticking = false;
-    function onScroll() {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          if (window.scrollY > 80) {
-            header!.classList.add('nav-island');
-          } else {
-            header!.classList.remove('nav-island');
-          }
-          ticking = false;
-        });
-        ticking = true;
-      }
+    if (sentinel && 'IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        ([entry]) => header.classList.toggle('nav-island', !entry.isIntersecting),
+        { threshold: 0 },
+      );
+      observer.observe(sentinel);
+    } else {
+      // Only reached on browsers without IntersectionObserver.
+      header.classList.add('nav-island');
     }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
   }
 
   initHeader();

@@ -182,28 +182,40 @@
   }
 }
 
-[data-reveal] {
+/*
+ * Scroll-reveal starts hidden ONLY when JavaScript is present.
+ *
+ * This was previously an unconditional `[data-reveal] { opacity: 0 }`, which
+ * meant that if the reveal script failed to load or run, every section it
+ * touched stayed invisible forever — the homepage below the hero, the whole
+ * about page, the gallery grid. Content that is hidden by default and revealed
+ * by script must be gated on the script actually existing.
+ *
+ * The `js` class is set by an inline script in <head>, so it lands before first
+ * paint and there is no flash of visible content.
+ */
+html.js [data-reveal] {
   opacity: 0;
 }
 
-[data-reveal].revealed {
+html.js [data-reveal].revealed {
   animation-duration: 0.6s;
   animation-fill-mode: both;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-[data-reveal='up'].revealed {
+html.js [data-reveal='up'].revealed {
   animation-name: fade-up;
 }
-[data-reveal='left'].revealed {
+html.js [data-reveal='left'].revealed {
   animation-name: slide-in-left;
 }
-[data-reveal='right'].revealed {
+html.js [data-reveal='right'].revealed {
   animation-name: slide-in-right;
 }
-[data-reveal='scale'].revealed {
+html.js [data-reveal='scale'].revealed {
   animation-name: scale-in;
 }
-[data-reveal='fade'].revealed {
+html.js [data-reveal='fade'].revealed {
   animation-name: fade-in;
 }

@@ -1,349 +1,334 @@
+---
+/**
+ * Lightbox
+ *
+ * Rewritten, and its role narrowed. Gallery cards now navigate to a real
+ * `/piece/<slug>/` page, which is shareable, indexable, and gives each piece
+ * room for its story — so the lightbox is no longer the primary way to see a
+ * photo larger. It is an "expand in place" affordance for readers browsing the
+ * grid quickly, opened by the button on each card.
+ *
+ * Two deliberate changes from the previous implementation:
+ *
+ *  - The slideshow no longer starts on its own. Auto-advancing content that
+ *    the reader did not ask for fails WCAG 2.2.2 unless it can be paused, and
+ *    it also fought `prefers-reduced-motion`. Play is now opt-in, and the
+ *    control reports its state.
+ *  - Focus is trapped while open and returned to the button that opened it.
+ *    Previously focus stayed behind the overlay, so a keyboard user tabbed
+ *    through the page underneath.
+ */
+---
+
 <div
   id="lightbox"
-  class="fixed inset-0 z-[100] bg-text/85 backdrop-blur-md flex items-center justify-center
-         opacity-0 pointer-events-none transition-opacity duration-300 overscroll-contain"
+  class="fixed inset-0 z-[95] hidden items-center justify-center bg-ink-display/85 backdrop-blur-sm"
   role="dialog"
   aria-modal="true"
-  aria-label="Image viewer"
+  aria-label="Expanded photo"
+  hidden
 >
-  <!-- Progress bar (Instagram Stories-style) -->
-  <div id="lightbox-progress" class="absolute top-3 left-3 right-14 flex gap-1 z-20"></div>
-
-  <!-- Top-right controls -->
-  <div class="absolute top-3 right-3 flex items-center gap-2 z-20">
-    <button
-      id="lightbox-pause"
-      class="w-9 h-9 flex items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors"
-      aria-label="Pause slideshow"
+  <button
+    id="lightbox-close"
+    type="button"
+    class="absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-card/90 text-ink-body shadow-2 transition-[background-color,transform] duration-[var(--duration-fast)] hover:bg-card hover:scale-105"
+    aria-label="Close"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      class="h-5 w-5"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      aria-hidden="true"
     >
-      <svg id="pause-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-        <rect x="6" y="4" width="4" height="16" rx="1"></rect>
-        <rect x="14" y="4" width="4" height="16" rx="1"></rect>
-      </svg>
-      <svg id="play-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M8 5v14l11-7z"></path>
-      </svg>
-    </button>
-    <button
-      id="lightbox-close"
-      class="w-9 h-9 flex items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors"
-      aria-label="Close"
-    >
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    </button>
-  </div>
+      <path d="M6 6l12 12M18 6L6 18"></path>
+    </svg>
+  </button>
 
-  <!-- Prev/Next -->
   <button
     id="lightbox-prev"
-    class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/25 transition-colors z-10"
-    aria-label="Previous image"
+    type="button"
+    class="absolute left-2 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-card/85 text-ink-body shadow-2 transition-[background-color,transform] duration-[var(--duration-fast)] hover:bg-card sm:left-4"
+    aria-label="Previous photo"
   >
-    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
+    <svg
+      viewBox="0 0 24 24"
+      class="h-5 w-5"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M15 6l-6 6 6 6"></path>
     </svg>
   </button>
+
   <button
     id="lightbox-next"
-    class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/25 transition-colors z-10"
-    aria-label="Next image"
+    type="button"
+    class="absolute right-2 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-card/85 text-ink-body shadow-2 transition-[background-color,transform] duration-[var(--duration-fast)] hover:bg-card sm:right-4"
+    aria-label="Next photo"
   >
-    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
+    <svg
+      viewBox="0 0 24 24"
+      class="h-5 w-5"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M9 6l6 6-6 6"></path>
     </svg>
   </button>
 
-  <!-- Image (transition-opacity for crossfade) -->
-  <img
-    id="lightbox-img"
-    class="max-w-[90vw] max-h-[80vh] object-contain rounded-2xl shadow-2xl transition-opacity duration-200 ease-in-out"
-    src=""
-    alt=""
-  />
-
-  <!-- Caption -->
-  <p
-    id="lightbox-caption"
-    class="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/90 text-sm text-center max-w-md px-4 line-clamp-2
-           transition-opacity duration-200"
-  >
-  </p>
+  <figure class="mx-auto flex max-h-[92dvh] w-full max-w-4xl flex-col items-center px-4">
+    <img
+      id="lightbox-image"
+      src=""
+      alt=""
+      width="1200"
+      height="1200"
+      class="max-h-[74dvh] w-auto max-w-full rounded-card bg-surface object-contain shadow-3"
+    />
+    <figcaption class="mt-4 max-w-2xl text-center">
+      <p id="lightbox-caption" class="font-heading text-step-0 font-semibold text-white"></p>
+      <div class="mt-3 flex items-center justify-center gap-3">
+        <button
+          id="lightbox-play"
+          type="button"
+          class="inline-flex min-h-[40px] items-center gap-2 rounded-control bg-card/90 px-3.5 py-2 font-heading text-step--1 font-semibold text-ink-body transition-colors duration-[var(--duration-fast)] hover:bg-card"
+          aria-pressed="false"
+        >
+          <svg
+            viewBox="0 0 16 16"
+            class="h-3.5 w-3.5"
+            fill="currentColor"
+            aria-hidden="true"
+            id="lightbox-play-icon"
+          >
+            <path d="M4 2.5l9 5.5-9 5.5z"></path>
+          </svg>
+          <span id="lightbox-play-label">Play slideshow</span>
+        </button>
+        <a
+          id="lightbox-link"
+          href="/"
+          class="no-underline-reset rounded-control bg-card/90 px-3.5 py-2 font-heading text-step--1 font-semibold"
+        >
+          Open this piece
+        </a>
+        <p class="label text-white/70">
+          <span class="tabular" id="lightbox-position">1</span>
+          {' / '}
+          <span class="tabular" id="lightbox-count">1</span>
+        </p>
+      </div>
+    </figcaption>
+  </figure>
 </div>
 
 <script>
-  interface LightboxImage {
+  interface LightboxSlide {
     src: string;
     alt: string;
     caption: string;
+    href: string;
   }
 
-  let images: LightboxImage[] = [];
-  let currentIndex = 0;
-  let touchStartX = 0;
-
-  const AUTOPLAY_DURATION = 4;
-  let autoplayInterval: ReturnType<typeof setInterval> | null = null;
-  let autoplayProgress = 0;
-  let isPaused = false;
-  let isOpen = false;
-  let isFading = false;
-
   function initLightbox() {
-    const lightbox = document.getElementById('lightbox')!;
-    const img = document.getElementById('lightbox-img') as HTMLImageElement;
-    const caption = document.getElementById('lightbox-caption')!;
-    const closeBtn = document.getElementById('lightbox-close')!;
-    const prevBtn = document.getElementById('lightbox-prev')!;
-    const nextBtn = document.getElementById('lightbox-next')!;
-    const pauseBtn = document.getElementById('lightbox-pause')!;
-    const pauseIcon = document.getElementById('pause-icon')!;
-    const playIcon = document.getElementById('play-icon')!;
-    const progressContainer = document.getElementById('lightbox-progress')!;
+    const root = document.getElementById('lightbox');
+    const image = document.getElementById('lightbox-image') as HTMLImageElement | null;
+    const captionEl = document.getElementById('lightbox-caption');
+    const linkEl = document.getElementById('lightbox-link') as HTMLAnchorElement | null;
+    const positionEl = document.getElementById('lightbox-position');
+    const countEl = document.getElementById('lightbox-count');
+    const closeBtn = document.getElementById('lightbox-close');
+    const prevBtn = document.getElementById('lightbox-prev');
+    const nextBtn = document.getElementById('lightbox-next');
+    const playBtn = document.getElementById('lightbox-play');
+    const playLabel = document.getElementById('lightbox-play-label');
+    const playIcon = document.getElementById('lightbox-play-icon');
 
-    function buildProgressBar() {
-      progressContainer.innerHTML = '';
-      images.forEach((_, i) => {
-        const segment = document.createElement('div');
-        segment.className = 'flex-1 h-[3px] bg-white/25 rounded-full overflow-hidden';
-        segment.dataset.segmentIndex = String(i);
-        const fill = document.createElement('div');
-        fill.className = 'h-full bg-white/90 rounded-full';
-        fill.style.width = '0%';
-        fill.style.transition = 'width 950ms linear';
-        segment.appendChild(fill);
-        progressContainer.appendChild(segment);
-      });
+    if (!root || !image) return;
+
+    let slides: LightboxSlide[] = [];
+    let index = 0;
+    let timer: number | undefined;
+    let opener: HTMLElement | null = null;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function collect() {
+      slides = Array.from(document.querySelectorAll<HTMLElement>('[data-lightbox-trigger]'))
+        .filter((el) => !el.closest('[hidden]'))
+        .map((el) => ({
+          src: el.dataset.lightboxSrc || '',
+          alt: el.dataset.lightboxAlt || '',
+          caption: el.dataset.lightboxCaption || '',
+          href: el.dataset.lightboxHref || '/',
+        }));
     }
 
-    function updateProgressBar() {
-      const segments = progressContainer.querySelectorAll('[data-segment-index]');
-      segments.forEach((seg, i) => {
-        const fill = seg.firstElementChild as HTMLElement;
-        if (!fill) return;
-        if (i < currentIndex) {
-          fill.style.transition = 'none';
-          fill.style.width = '100%';
-        } else if (i === currentIndex) {
-          fill.style.transition = 'width 950ms linear';
-          fill.style.width = `${(autoplayProgress / AUTOPLAY_DURATION) * 100}%`;
-        } else {
-          fill.style.transition = 'none';
-          fill.style.width = '0%';
-        }
-      });
+    function render() {
+      const slide = slides[index];
+      if (!slide) return;
+      image!.src = slide.src;
+      image!.alt = slide.alt;
+      if (captionEl) captionEl.textContent = slide.caption;
+      if (linkEl) linkEl.href = slide.href;
+      if (positionEl) positionEl.textContent = String(index + 1);
+      if (countEl) countEl.textContent = String(slides.length);
+
+      const single = slides.length < 2;
+      prevBtn?.toggleAttribute('hidden', single);
+      nextBtn?.toggleAttribute('hidden', single);
+      playBtn?.toggleAttribute('hidden', single);
     }
 
-    /** Crossfade: fade out image+caption, swap content, fade back in */
-    function crossfadeTo(newIndex: number, onDone?: () => void) {
-      if (isFading) return;
-      isFading = true;
-
-      img.style.opacity = '0';
-      caption.style.opacity = '0';
-
-      setTimeout(() => {
-        currentIndex = newIndex;
-        const item = images[currentIndex];
-        if (item) {
-          img.src = item.src;
-          img.alt = item.alt;
-          caption.textContent = item.caption;
-        }
-        prevBtn.style.display = currentIndex > 0 ? '' : 'none';
-        nextBtn.style.display = currentIndex < images.length - 1 ? '' : 'none';
-
-        // Fade in once the new image starts loading
-        img.style.opacity = '1';
-        caption.style.opacity = '1';
-        isFading = false;
-        if (onDone) onDone();
-      }, 220);
+    function stop() {
+      if (timer) window.clearInterval(timer);
+      timer = undefined;
+      playBtn?.setAttribute('aria-pressed', 'false');
+      if (playLabel) playLabel.textContent = 'Play slideshow';
+      if (playIcon) playIcon.innerHTML = '<path d="M4 2.5l9 5.5-9 5.5z" />';
     }
 
-    /** Instant update (no fade, used for initial open) */
-    function updateInstant() {
-      const item = images[currentIndex];
-      if (!item) return;
-      img.style.opacity = '1';
-      caption.style.opacity = '1';
-      img.src = item.src;
-      img.alt = item.alt;
-      caption.textContent = item.caption;
-      prevBtn.style.display = currentIndex > 0 ? '' : 'none';
-      nextBtn.style.display = currentIndex < images.length - 1 ? '' : 'none';
+    function play() {
+      // Never auto-start, and never run at all under reduced-motion.
+      if (prefersReducedMotion || slides.length < 2) return;
+      stop();
+      timer = window.setInterval(() => go(1), 3800);
+      playBtn?.setAttribute('aria-pressed', 'true');
+      if (playLabel) playLabel.textContent = 'Pause slideshow';
+      if (playIcon) playIcon.innerHTML = '<path d="M4 3h3v10H4zM9 3h3v10H9z" />';
     }
 
-    function startAutoplay() {
-      stopAutoplay();
-      isPaused = false;
-      pauseIcon.classList.remove('hidden');
-      playIcon.classList.add('hidden');
-
-      autoplayInterval = setInterval(() => {
-        if (isFading) return;
-
-        autoplayProgress++;
-        updateProgressBar();
-
-        if (autoplayProgress >= AUTOPLAY_DURATION) {
-          if (currentIndex < images.length - 1) {
-            autoplayProgress = 0;
-            crossfadeTo(currentIndex + 1, () => {
-              updateProgressBar();
-            });
-          } else {
-            stopAutoplay();
-            updateProgressBar();
-          }
-        }
-      }, 1000);
+    function go(step: number) {
+      if (slides.length === 0) return;
+      index = (index + step + slides.length) % slides.length;
+      render();
     }
 
-    function stopAutoplay() {
-      if (autoplayInterval !== null) {
-        clearInterval(autoplayInterval);
-        autoplayInterval = null;
-      }
-    }
-
-    function togglePause() {
-      if (isPaused) {
-        startAutoplay();
-      } else {
-        stopAutoplay();
-        isPaused = true;
-        pauseIcon.classList.add('hidden');
-        playIcon.classList.remove('hidden');
-      }
-    }
-
-    function blockScroll(e: Event) { e.preventDefault(); }
-
-    function open(index: number) {
-      isOpen = true;
-      currentIndex = index;
-      autoplayProgress = 0;
-      buildProgressBar();
-      updateInstant();
-      updateProgressBar();
-      lightbox.classList.remove('opacity-0', 'pointer-events-none');
-      lightbox.classList.add('opacity-100', 'pointer-events-auto');
+    function open(startIndex: number, trigger: HTMLElement) {
+      collect();
+      if (slides.length === 0) return;
+      opener = trigger;
+      index = Math.max(0, Math.min(startIndex, slides.length - 1));
+      render();
+      root!.removeAttribute('hidden');
+      root!.classList.remove('hidden');
+      root!.classList.add('flex');
       document.body.style.overflow = 'hidden';
-      document.addEventListener('wheel', blockScroll, { passive: false });
-      document.addEventListener('touchmove', blockScroll, { passive: false });
-      startAutoplay();
+      closeBtn?.focus();
     }
 
     function close() {
-      isOpen = false;
-      stopAutoplay();
-      lightbox.classList.add('opacity-0', 'pointer-events-none');
-      lightbox.classList.remove('opacity-100', 'pointer-events-auto');
+      stop();
+      root!.setAttribute('hidden', '');
+      root!.classList.add('hidden');
+      root!.classList.remove('flex');
       document.body.style.overflow = '';
-      document.removeEventListener('wheel', blockScroll);
-      document.removeEventListener('touchmove', blockScroll);
+      opener?.focus();
+      opener = null;
     }
 
-    function prev() {
-      if (currentIndex > 0 && !isFading) {
-        stopAutoplay();
-        autoplayProgress = 0;
-        crossfadeTo(currentIndex - 1, () => {
-          updateProgressBar();
-          if (!isPaused) startAutoplay();
-        });
-      }
+    function isOpen() {
+      return !root!.hasAttribute('hidden');
     }
 
-    function next() {
-      if (currentIndex < images.length - 1 && !isFading) {
-        stopAutoplay();
-        autoplayProgress = 0;
-        crossfadeTo(currentIndex + 1, () => {
-          updateProgressBar();
-          if (!isPaused) startAutoplay();
-        });
-      }
-    }
-
-    closeBtn.addEventListener('click', close);
-    prevBtn.addEventListener('click', prev);
-    nextBtn.addEventListener('click', next);
-    pauseBtn.addEventListener('click', togglePause);
-
-    lightbox.addEventListener('click', (e) => {
-      if (e.target === lightbox) close();
+    document.addEventListener('click', (event) => {
+      const trigger = (event.target as HTMLElement)?.closest<HTMLElement>(
+        '[data-lightbox-trigger]',
+      );
+      if (!trigger) return;
+      event.preventDefault();
+      collect();
+      const all = Array.from(
+        document.querySelectorAll<HTMLElement>('[data-lightbox-trigger]'),
+      ).filter((el) => !el.closest('[hidden]'));
+      open(all.indexOf(trigger), trigger);
     });
 
-    document.addEventListener('keydown', (e) => {
-      if (!isOpen) return;
-      if (e.key === 'Escape') close();
-      if (e.key === 'ArrowLeft') prev();
-      if (e.key === 'ArrowRight') next();
-      if (e.key === ' ') {
-        e.preventDefault();
-        togglePause();
-      }
+    closeBtn?.addEventListener('click', close);
+    prevBtn?.addEventListener('click', () => {
+      stop();
+      go(-1);
+    });
+    nextBtn?.addEventListener('click', () => {
+      stop();
+      go(1);
+    });
+    playBtn?.addEventListener('click', () => {
+      if (timer) stop();
+      else play();
     });
 
-    // Touch swipe
-    lightbox.addEventListener(
-      'touchstart',
-      (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-      },
-      { passive: true },
-    );
-    lightbox.addEventListener(
-      'touchend',
-      (e) => {
-        const diff = touchStartX - e.changedTouches[0].screenX;
-        if (Math.abs(diff) > 50) {
-          if (diff > 0) next();
-          else prev();
+    // Click the backdrop, not the figure, to dismiss.
+    root.addEventListener('click', (event) => {
+      if (event.target === root) close();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (!isOpen()) return;
+
+      if (event.key === 'Escape') {
+        close();
+        return;
+      }
+      if (event.key === 'ArrowLeft') {
+        stop();
+        go(-1);
+        return;
+      }
+      if (event.key === 'ArrowRight') {
+        stop();
+        go(1);
+        return;
+      }
+      if (event.key === 'Tab') {
+        const focusables = Array.from(
+          root!.querySelectorAll<HTMLElement>('button:not([hidden]), a[href]'),
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
         }
-      },
-      { passive: true },
-    );
-
-    // Pause on tab hidden, resume on visible
-    document.addEventListener('visibilitychange', () => {
-      if (!isOpen) return;
-      if (document.hidden) {
-        stopAutoplay();
-      } else if (!isPaused) {
-        startAutoplay();
       }
     });
 
-    // Register gallery images
-    function registerImages() {
-      images = [];
-      document.querySelectorAll('[data-lightbox]').forEach((el, i) => {
-        const imgEl = el as HTMLElement;
-        images.push({
-          src: imgEl.dataset.lightboxSrc || '',
-          alt: imgEl.dataset.lightboxAlt || '',
-          caption: imgEl.dataset.lightboxCaption || '',
-        });
-        imgEl.addEventListener('click', () => open(i));
-        imgEl.style.cursor = 'zoom-in';
-      });
-    }
-
-    registerImages();
-
-    (window as any).reinitLightbox = () => {
-      registerImages();
-      if (isOpen) buildProgressBar();
-    };
+    // Touch swipe.
+    let touchStartX = 0;
+    root.addEventListener(
+      'touchstart',
+      (event) => {
+        touchStartX = event.changedTouches[0].screenX;
+      },
+      { passive: true },
+    );
+    root.addEventListener(
+      'touchend',
+      (event) => {
+        const delta = event.changedTouches[0].screenX - touchStartX;
+        if (Math.abs(delta) < 48) return;
+        stop();
+        go(delta > 0 ? -1 : 1);
+      },
+      { passive: true },
+    );
   }
 
   initLightbox();
-  document.addEventListener('astro:after-swap', () => {
-    images = [];
-    initLightbox();
-  });
+  document.addEventListener('astro:after-swap', initLightbox);
 </script>

@@ -1,0 +1,234 @@
+---
+/**
+ * One page per finished piece.
+ *
+ * The site previously had a single gallery route, so 291 photographs of
+ * Faith's work were invisible to search and impossible to link to
+ * individually. Each of these is a real indexable URL with its own Product
+ * schema, its own preview image, and a route back into the collection.
+ *
+ * `generateCreativeWorkSchema` had been sitting unused in `lib/seo.ts` since
+ * the first commit — this is the shape of thing it was written for, though it
+ * is modelled as a made-to-order Product here, which suits a commission-based
+ * maker better.
+ */
+import type { GetStaticPaths } from 'astro';
+import type { GalleryItem } from '@typedefs/index';
+import Layout from '@layouts/Layout.astro';
+import Card from '@components/ui/Card.astro';
+import Button from '@components/ui/Button.astro';
+import GalleryImage from '@components/ui/GalleryImage.astro';
+import Divider from '@components/ui/Divider.astro';
+import { getGalleryItems, getNeighbours, getRelated } from '@lib/gallery';
+import { generatePieceSchema, generateBreadcrumbSchema } from '@lib/gallery-schema';
+import { SOCIALS } from '@lib/constants';
+
+interface Props {
+  item: GalleryItem;
+}
+
+export const getStaticPaths: GetStaticPaths = () => {
+  return getGalleryItems().map((item) => ({
+    params: { slug: item.slug },
+    props: { item },
+  }));
+};
+
+const { item } = Astro.props;
+const { previous, next } = getNeighbours(item.slug);
+const related = getRelated(item, 4);
+
+const description = (item.body || item.alt).replace(/\s+/g, ' ').slice(0, 155);
+
+/**
+ * Preload the widest AVIF that actually exists for this piece. Hardcoding a
+ * width here would 404 on the majority of items: most of Faith's photos come
+ * off Facebook at 720px, so their variant set is [480, 720], not [480, 800].
+ */
+const avifWidths = item.variants?.avif ?? [];
+const preloadImage = avifWidths.length
+  ? `/gallery/${item.hash}-${avifWidths[avifWidths.length - 1]}.avif`
+  : undefined;
+---
+
+<Layout
+  title={item.title}
+  description={description}
+  type="article"
+  image={`/gallery/${item.hash}-800.jpg`}
+  imageWidth={item.width}
+  imageHeight={item.height}
+  imageAlt={item.alt}
+  preloadImage={preloadImage}
+  jsonLd={[generatePieceSchema(item), generateBreadcrumbSchema(item)]}
+>
+  <article class="pb-20 pt-10 sm:pt-14">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <nav aria-label="Breadcrumb" class="mb-8">
+        <ol class="flex flex-wrap items-center gap-2 text-step--1 text-ink-subtle" role="list">
+          <li><a href="/">Home</a></li>
+          <li aria-hidden="true">/</li>
+          <li><a href="/gallery/">Gallery</a></li>
+          <li aria-hidden="true">/</li>
+          <li class="text-ink-muted" aria-current="page">{item.categoryLabel}</li>
+        </ol>
+      </nav>
+
+      <div class="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-16">
+        <Card layout="media" interactive={false} class="self-start">
+          <GalleryImage
+            item={item}
+            wrapperClass="rounded-inner"
+            sizes="(min-width: 1024px) 34rem, 92vw"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </Card>
+
+        <div>
+          <p class="label">{item.categoryLabel}</p>
+          <h1 class="mt-2 font-heading text-step-4 font-bold text-ink-display">{item.title}</h1>
+
+          {
+            item.dateLabel && (
+              <p class="mt-3 text-step--1 text-ink-subtle">Finished {item.dateLabel}</p>
+            )
+          }
+
+          {
+            item.body && (
+              <div class="measure mt-6 space-y-3 text-ink-muted">
+                {item.body.split('\n').map((line) => (
+                  <p>{line}</p>
+                ))}
+              </div>
+            )
+          }
+
+          {
+            item.tags.length > 0 && (
+              <ul class="mt-7 flex flex-wrap gap-2" role="list" aria-label="Tags">
+                {item.tags.slice(0, 8).map((tag: string) => (
+                  <li class="rounded-chip border border-rose-tint bg-rose-wash px-2.5 py-1 text-step--1 text-ink-muted">
+                    {tag}
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+
+          <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+            <Button href="/order/" variant="primary" size="lg">Ask for one like this</Button>
+            <Button href={item.permalink} variant="secondary" size="md" external>
+              See the original post
+            </Button>
+          </div>
+
+          <p class="mt-5 text-step--1 text-ink-subtle">
+            Every piece is worked to order, so colours and size can change to suit you.
+            {' '}
+            <a href={SOCIALS.facebook.messenger} target="_blank" rel="noopener noreferrer">
+              Message Faith
+            </a>
+            {' if you would rather talk it through.'}
+          </p>
+        </div>
+      </div>
+
+      {/* Prev / next never dead-ends: it wraps at both ends of the collection. */}
+      {
+        (previous || next) && (
+          <nav class="mt-16 flex items-stretch justify-between gap-4" aria-label="Browse pieces">
+            {previous ? (
+              <a
+                href={previous.href}
+                class="no-underline-reset group flex flex-1 items-center gap-3 rounded-card border border-rose-tint/60 bg-card p-3 shadow-1 transition-[box-shadow,transform,border-color] duration-[var(--duration-base)] ease-soft hover:-translate-y-0.5 hover:shadow-2"
+              >
+                <svg
+                  class="h-4 w-4 shrink-0 transition-transform duration-[var(--duration-base)] ease-soft group-hover:-translate-x-1"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+                </svg>
+                <span class="min-w-0">
+                  <span class="label block">Previous</span>
+                  <span class="block truncate font-heading text-step--1 font-semibold text-ink-display">
+                    {previous.title}
+                  </span>
+                </span>
+              </a>
+            ) : (
+              <span class="flex-1" />
+            )}
+
+            {next ? (
+              <a
+                href={next.href}
+                class="no-underline-reset group flex flex-1 items-center justify-end gap-3 rounded-card border border-rose-tint/60 bg-card p-3 text-right shadow-1 transition-[box-shadow,transform,border-color] duration-[var(--duration-base)] ease-soft hover:-translate-y-0.5 hover:shadow-2"
+              >
+                <span class="min-w-0">
+                  <span class="label block">Next</span>
+                  <span class="block truncate font-heading text-step--1 font-semibold text-ink-display">
+                    {next.title}
+                  </span>
+                </span>
+                <svg
+                  class="h-4 w-4 shrink-0 transition-transform duration-[var(--duration-base)] ease-soft group-hover:translate-x-1"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </a>
+            ) : (
+              <span class="flex-1" />
+            )}
+          </nav>
+        )
+      }
+
+      {
+        related.length > 0 && (
+          <>
+            <Divider variant={4} />
+            <section aria-labelledby="related-heading">
+              <h2 id="related-heading" class="font-heading text-step-3 font-bold text-ink-display">
+                More like this
+              </h2>
+              <ul class="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4" role="list">
+                {related.map((relatedItem) => (
+                  <li>
+                    <Card href={relatedItem.href} class="h-full">
+                      <GalleryImage
+                        item={relatedItem}
+                        wrapperClass="rounded-inner"
+                        sizes="(min-width: 1024px) 15rem, 45vw"
+                        maxWidth={800}
+                        showPlaceholder={false}
+                        aspect="square"
+                      />
+                      <p class="line-clamp-2 px-1.5 pb-1 pt-3 font-heading text-step--1 font-semibold text-ink-display">
+                        {relatedItem.title}
+                      </p>
+                    </Card>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </>
+        )
+      }
+    </div>
+  </article>
+</Layout>

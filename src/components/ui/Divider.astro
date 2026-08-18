@@ -28,25 +28,25 @@ const { variant = 1, class: className = '' } = Astro.props;
 <div class={`flex items-center justify-center py-10 ${className}`} aria-hidden="true">
   {
     variant === 1 && (
-      <svg class="h-6 w-56 max-w-full" viewBox="0 0 224 24" fill="none">
+      <svg class="h-7 w-72 max-w-full" viewBox="0 0 224 24" fill="none">
         <path
           d="M4 12h74"
-          class="stroke-rose-tint"
+          class="stroke-rose-brand/55"
           stroke-width="2"
           stroke-linecap="round"
           stroke-dasharray="7 6"
         />
         <path
           d="M146 12h74"
-          class="stroke-rose-tint"
+          class="stroke-rose-brand/55"
           stroke-width="2"
           stroke-linecap="round"
           stroke-dasharray="7 6"
         />
-        <circle cx="112" cy="12" r="9" class="fill-rose-brand/25" />
+        <circle cx="112" cy="12" r="9" class="fill-rose-brand/35" />
         <path
           d="M105 17c3-6 6-7.5 7.5-13.5M108 5.5c2.5 6 5 8.5 10 11"
-          class="stroke-rose-brand/60"
+          class="stroke-rose-brand/75"
           stroke-width="1.6"
           stroke-linecap="round"
         />
@@ -56,8 +56,8 @@ const { variant = 1, class: className = '' } = Astro.props;
 
   {
     variant === 2 && (
-      <svg class="h-6 w-56 max-w-full" viewBox="0 0 224 24" fill="none">
-        <g class="stroke-rose-tint" stroke-width="2" stroke-linecap="round">
+      <svg class="h-7 w-72 max-w-full" viewBox="0 0 224 24" fill="none">
+        <g class="stroke-rose-brand/55" stroke-width="2" stroke-linecap="round">
           {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
             <ellipse
               cx={22 + i * 20}
@@ -74,10 +74,10 @@ const { variant = 1, class: className = '' } = Astro.props;
 
   {
     variant === 3 && (
-      <svg class="h-8 w-56 max-w-full" viewBox="0 0 224 32" fill="none">
+      <svg class="h-9 w-80 max-w-full" viewBox="0 0 224 32" fill="none">
         <path
           d="M4 16h68"
-          class="stroke-rose-tint"
+          class="stroke-rose-brand/55"
           stroke-width="2"
           stroke-linecap="round"
           stroke-dasharray="7 6"
@@ -85,42 +85,48 @@ const { variant = 1, class: className = '' } = Astro.props;
         {/* the hook: shaft, then the crook that catches the yarn */}
         <path
           d="M84 24 L108 10"
-          class="stroke-rose-brand/70"
+          class="stroke-rose-brand/80"
           stroke-width="2.4"
           stroke-linecap="round"
         />
         <path
           d="M108 10 q6-3.5 8 1.5 q1.5 4.5-4 5"
-          class="stroke-rose-brand/70"
+          class="stroke-rose-brand/80"
           stroke-width="2.4"
           stroke-linecap="round"
         />
         {/* working yarn curling away from the hook */}
         <path
           d="M112 17 q10 6 22 2 q12-4 20 4 q7 7 18 2"
-          class="stroke-rose-tint"
+          class="stroke-rose-brand/55"
           stroke-width="2"
           stroke-linecap="round"
         />
         <circle cx="176" cy="24" r="6" class="fill-rose-brand/20" />
-        <path d="M197 16h23" class="stroke-rose-tint" stroke-width="2" stroke-linecap="round" stroke-dasharray="7 6" />
+        <path
+          d="M197 16h23"
+          class="stroke-rose-brand/55"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-dasharray="7 6"
+        />
       </svg>
     )
   }
 
   {
     variant === 4 && (
-      <svg class="h-6 w-64 max-w-full" viewBox="0 0 256 24" fill="none">
+      <svg class="h-7 w-80 max-w-full" viewBox="0 0 256 24" fill="none">
         {/* shell edging: the scalloped finish on a crochet blanket */}
         <path
           d="M8 16 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0 q10-13 20 0"
-          class="stroke-rose-tint"
+          class="stroke-rose-brand/55"
           stroke-width="2"
           stroke-linecap="round"
         />
         <path
           d="M8 16h240"
-          class="stroke-rose-brand/25"
+          class="stroke-rose-brand/40"
           stroke-width="1.6"
           stroke-linecap="round"
         />

@@ -84,22 +84,14 @@
    as a running stitch.
    -------------------------------------------------------------------------- */
 .thread-rail {
-  background-image: linear-gradient(
-    to bottom,
-    var(--color-rose-tint) 0 6px,
-    transparent 6px 14px
-  );
+  background-image: linear-gradient(to bottom, var(--color-rose-tint) 0 6px, transparent 6px 14px);
   background-size: 2px 14px;
   background-repeat: repeat-y;
   background-position: top center;
 }
 
 .thread-rail--horizontal {
-  background-image: linear-gradient(
-    to right,
-    var(--color-rose-tint) 0 6px,
-    transparent 6px 14px
-  );
+  background-image: linear-gradient(to right, var(--color-rose-tint) 0 6px, transparent 6px 14px);
   background-size: 14px 2px;
   background-repeat: repeat-x;
   background-position: left center;

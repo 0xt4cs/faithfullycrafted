@@ -10,41 +10,94 @@ import { generateLocalBusinessSchema } from '@lib/seo';
 import '@styles/global.css';
 
 interface Props extends SEOProps {
-  jsonLd?: Record<string, unknown>;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  /** Preload path for the LCP image, when a page has a known one. */
+  preloadImage?: string;
 }
 
-const { jsonLd, ...seoProps } = Astro.props;
-const structuredData = jsonLd ?? generateLocalBusinessSchema();
+const { jsonLd, preloadImage, ...seoProps } = Astro.props;
+
+/**
+ * LocalBusiness is always emitted, then any page-specific schema is added.
+ *
+ * This used to be `jsonLd ?? generateLocalBusinessSchema()`, so a page that
+ * supplied its own schema silently dropped the business identity — /contact/
+ * gained an FAQPage and lost its LocalBusiness in the same change. Additive is
+ * the only behaviour a page author cannot get wrong by forgetting.
+ */
+const pageSchemas = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const schemas = [generateLocalBusinessSchema(), ...pageSchemas];
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en-PH">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <script is:inline>
+      // Marks that scripting is available, before first paint. Scroll-reveal
+      // hides its targets only under html.js, so a failed or blocked script
+      // leaves the content visible rather than blank.
+      document.documentElement.classList.add('js');
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#F4B8C8" />
-    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#FFF5F7" />
     <meta name="author" content="Faith" />
     <meta name="generator" content={Astro.generator} />
+
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <link rel="preload" href="/fonts/quicksand-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+    {
+      /*
+      Both display faces are preloaded. Only Quicksand was preloaded before,
+      so DM Sans — which sets every paragraph on the site — arrived late and
+      caused a visible reflow after first paint.
+    */
+    }
+    <link
+      rel="preload"
+      href="/fonts/quicksand-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+    {preloadImage && <link rel="preload" href={preloadImage} as="image" fetchpriority="high" />}
+
     <SEOHead {...seoProps} />
     <ClientRouter />
-    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    {
+      schemas.map((schema) => (
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+      ))
+    }
   </head>
-  <body class="min-h-screen flex flex-col overflow-x-hidden">
+
+  <!--
+    min-h-[100dvh] rather than min-h-screen: on iOS Safari 100vh is the height
+    with the toolbars hidden, so a full-height page jumps as the toolbar
+    collapses.
+  -->
+  <body class="flex min-h-[100dvh] flex-col overflow-x-hidden">
+    <a href="#main" class="skip-link">Skip to content</a>
+
     <Header />
-    <main class="flex-1" transition:animate="fade">
+
+    <main id="main" class="flex-1" transition:animate="fade">
       <slot />
     </main>
+
     <Footer />
+
+    {/* Paper grain over the whole viewport so pastel fills are not flat. */}
+    <div class="grain-page" aria-hidden="true"></div>
+
     <ScrollReveal />
-    <!-- Lightbox at body root level, outside <main> to avoid stacking context trap from View Transitions -->
+    {/* Outside <main> so View Transitions cannot trap it in a stacking context. */}
     <Lightbox />
   </body>
 </html>

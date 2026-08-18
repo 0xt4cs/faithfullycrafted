@@ -1,110 +1,167 @@
 ---
+/**
+ * Hero
+ *
+ * This is the one place on the site that spends boldness: the washi tape, the
+ * tilt, and the layered paper all live here and nowhere else. The audit found
+ * 46 rotations and 11 tape strips scattered across every card, which is why
+ * nothing felt like a focal point. Concentrating them into a single pinned
+ * photograph is what makes it read as a craft table rather than a template.
+ *
+ * It is also the LCP element, so the portrait ships as AVIF/WebP at the width
+ * actually displayed. It was previously a 2048x2048 JPEG rendered at roughly
+ * 380px — 87 kB to paint 7 kB of pixels.
+ */
 import Button from '@components/ui/Button.astro';
 import { SITE, SOCIALS } from '@lib/constants';
+
+interface Props {
+  /** Total pieces, so the hero can say something true rather than vague. */
+  pieceCount?: number;
+}
+
+const { pieceCount } = Astro.props;
 ---
 
-<section class="relative overflow-hidden bg-gradient-to-b from-cream via-surface to-background" aria-label="Welcome to Faithfully Crafted">
-  <!-- Decorative floating elements -->
-  <div class="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-    <!-- Yarn ball top-right -->
+<section
+  class="stitch-field grain relative overflow-hidden bg-gradient-to-b from-cream via-surface to-page"
+  aria-labelledby="hero-heading"
+>
+  {/* Decorative only: fill-/stroke-, never text-, so the contrast gate passes. */}
+  <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
     <svg
-      class="absolute -top-4 right-8 w-20 h-20 text-mint/30 animate-float hidden sm:block"
-      viewBox="0 0 80 80"
-      fill="currentColor"
+      class="animate-float absolute -top-6 right-6 hidden h-24 w-24 sm:block"
+      viewBox="0 0 96 96"
+      fill="none"
     >
-      <circle cx="40" cy="40" r="35" />
-      <path d="M20 50c10-15 20-20 25-35M30 20c5 15 15 25 30 30" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.5" />
+      <circle cx="48" cy="48" r="38" class="fill-decor-mint/15"></circle>
+      <path
+        d="M24 60c12-18 24-24 30-42M34 22c6 18 18 30 36 36"
+        class="stroke-decor-mint/40"
+        stroke-width="1.8"
+        stroke-linecap="round"></path>
     </svg>
-    <!-- Bow left -->
     <svg
-      class="absolute top-1/3 -left-2 w-14 h-14 text-primary/20 animate-float-delayed hidden lg:block"
-      viewBox="0 0 56 56"
-      fill="currentColor"
+      class="animate-float-delayed absolute left-[4%] top-1/3 hidden h-16 w-16 lg:block"
+      viewBox="0 0 64 64"
+      fill="none"
     >
-      <path d="M28 28c-8-8-20-12-20-4s12 12 20 4zm0 0c8-8 20-12 20-4s-12 12-20 4z" />
-      <circle cx="28" cy="28" r="4" />
-    </svg>
-    <!-- Small stars -->
-    <svg
-      class="absolute bottom-1/4 right-1/4 w-6 h-6 text-gold/40 animate-pulse-soft"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-    >
-      <path d="M12 0L14 9L24 12L14 14L12 24L10 14L0 12L10 9Z" />
+      <circle cx="32" cy="32" r="24" class="fill-decor-lavender/15"></circle>
+      <path
+        d="M18 40c7-11 14-15 18-26"
+        class="stroke-decor-lavender/40"
+        stroke-width="1.8"
+        stroke-linecap="round"></path>
     </svg>
   </div>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16 sm:pt-36 sm:pb-20 lg:pt-48 lg:pb-28">
-    <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
-      <!-- Text Content -->
+  <div
+    class="relative mx-auto max-w-7xl px-4 pb-20 pt-32 sm:px-6 sm:pb-24 sm:pt-40 lg:px-8 lg:pb-28 lg:pt-44"
+  >
+    <div class="flex flex-col items-center gap-14 lg:flex-row lg:gap-20">
       <div class="flex-1 text-center lg:text-left">
-        <h1
-          class="font-brand text-primary-bold leading-tight"
-          style="font-size: clamp(2.5rem, 6vw, 4.5rem);"
-        >
-          {SITE.name}
+        <p class="label" data-reveal="up">Handmade in Caloocan, Philippines</p>
+
+        <h1 id="hero-heading" class="mt-3" data-reveal="up" data-reveal-delay="60">
+          <span class="block font-brand text-step-6 leading-[1.05] text-rose-text">
+            {SITE.name}
+          </span>
         </h1>
+
         <p
-          class="mt-4 font-heading text-text-muted leading-relaxed max-w-lg mx-auto lg:mx-0"
-          style="font-size: clamp(1.1rem, 2vw, 1.35rem);"
+          class="measure mx-auto mt-5 font-heading text-step-2 leading-snug text-ink-display lg:mx-0"
+          data-reveal="up"
+          data-reveal-delay="120"
         >
-          {SITE.tagline}
+          Crochet made one stitch at a time, by hand, by Faith.
         </p>
-        <p class="mt-3 text-text-muted/80 max-w-md mx-auto lg:mx-0">
-          Beautiful handmade crochet pieces — amigurumi, accessories, and heartfelt gifts, crafted
-          by Faith from the Philippines.
+
+        <p
+          class="measure mx-auto mt-4 text-ink-muted lg:mx-0"
+          data-reveal="up"
+          data-reveal-delay="180"
+        >
+          Amigurumi, keychains, flowers and personalised minis — each piece worked to order in a
+          crafting corner in South Caloocan, and posted out across the Philippines.
         </p>
-        <div class="mt-8 flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
-          <Button href="/gallery/" variant="primary" size="lg">
-            View Gallery
-          </Button>
-          <Button href={SOCIALS.facebook.messenger} variant="secondary" size="lg" external>
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0z" />
-            </svg>
-            Message Me
+
+        <div
+          class="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:gap-4 lg:justify-start"
+          data-reveal="up"
+          data-reveal-delay="240"
+        >
+          <Button href="/order/" variant="primary" size="lg">Request a custom piece</Button>
+          <Button href="/gallery/" variant="secondary" size="lg">
+            {pieceCount ? `Browse ${pieceCount} pieces` : 'Browse the gallery'}
           </Button>
         </div>
+
+        <p class="mt-6 text-step--1 text-ink-subtle" data-reveal="fade" data-reveal-delay="300">
+          Prefer to chat? <a
+            href={SOCIALS.facebook.messenger}
+            target="_blank"
+            rel="noopener noreferrer">Message Faith on Messenger</a
+          >
+        </p>
       </div>
 
-      <!-- Decorative Mascot Area -->
-      <div class="flex-shrink-0 relative" data-reveal="scale">
-        <div class="w-full max-w-sm mx-auto group perspective-1000">
-          <div class="relative w-64 sm:w-80 lg:w-96 mx-auto">
-            <!-- Decorative background layers -->
-            <div class="absolute inset-0 bg-primary/20 rounded-3xl translate-x-3 translate-y-3 sm:translate-x-5 sm:translate-y-5 rotate-3 transition-transform duration-500 ease-out group-hover:translate-x-6 group-hover:translate-y-6 group-hover:rotate-6 shadow-sm"></div>
-            <div class="absolute inset-0 bg-gold/20 rounded-3xl -translate-x-2 -translate-y-2 sm:-translate-x-4 sm:-translate-y-4 -rotate-2 transition-transform duration-500 ease-out group-hover:-translate-x-5 group-hover:-translate-y-5 group-hover:-rotate-4 shadow-sm"></div>
-            
-            <!-- Main Photo Frame -->
-            <div class="relative w-full bg-body p-3 sm:p-5 rounded-3xl shadow-xl shadow-primary/10 rotate-[2deg] transition-transform duration-500 ease-out group-hover:rotate-0 border border-surface flex flex-col z-10 box-border bg-white">
-              <!-- Diagonal Washi Tape -->
-              <div class="absolute -top-4 right-8 w-24 h-6 bg-lavender/60 border border-white/40 shadow-sm rotate-[10deg] z-20 backdrop-blur-md opacity-90" style="clip-path: polygon(4% 5%, 96% 2%, 98% 95%, 2% 98%);"></div>
+      {/* ---- The signature moment ---- */}
+      <div class="relative flex-shrink-0" data-reveal="scale">
+        <div class="group relative w-64 sm:w-80 lg:w-[22rem]">
+          {
+            /* Two sheets of paper behind, offset in ONE direction so the light
+              source stays consistent. The old version offset them in opposing
+              directions, which read as two conflicting light sources. */
+          }
+          <div
+            class="absolute inset-0 rotate-[3deg] rounded-card bg-rose-brand/20 shadow-1 transition-transform duration-[var(--duration-slow)] ease-soft group-hover:rotate-[5deg]"
+          >
+          </div>
+          <div
+            class="absolute inset-0 rotate-[1.5deg] rounded-card bg-cream shadow-1 transition-transform duration-[var(--duration-slow)] ease-soft group-hover:rotate-[2.5deg]"
+          >
+          </div>
 
-              <!-- Picture -->
-              <div class="relative aspect-square sm:aspect-square rounded-2xl overflow-hidden bg-surface shadow-inner">
-                <img
-                  src="/faith.jpg"
-                  alt="Crafting pieces by Faith"
-                  class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  loading="eager"
-                />
-                <div class="absolute inset-0 border border-black/5 rounded-2xl pointer-events-none mix-blend-overlay"></div>
-              </div>
-              
-              <!-- Frame Caption -->
-              <div class="pt-5 pb-2 text-center pointer-events-none">
-                <span class="font-brand text-3xl sm:text-4xl text-primary-bold/90 drop-shadow-sm">by Faith</span>
-              </div>
+          <div
+            class="relative z-10 rotate-[-2deg] rounded-card border border-rose-tint/60 bg-card p-3 shadow-3 transition-transform duration-[var(--duration-slow)] ease-soft group-hover:rotate-0"
+          >
+            {/* Washi tape. The only strip on the site. */}
+            <div
+              class="absolute -top-4 right-7 z-20 h-7 w-24 rotate-[10deg] border border-white/50 bg-decor-lavender/60 shadow-1 backdrop-blur-sm"
+              style="clip-path: polygon(4% 5%, 96% 2%, 98% 95%, 2% 98%);"
+              aria-hidden="true"
+            >
             </div>
+
+            <div class="overflow-hidden rounded-inner bg-surface">
+              <picture>
+                <source
+                  type="image/avif"
+                  srcset="/faith-400.avif 400w, /faith-640.avif 640w, /faith-900.avif 900w"
+                  sizes="(min-width: 1024px) 22rem, (min-width: 640px) 20rem, 16rem"
+                />
+                <source
+                  type="image/webp"
+                  srcset="/faith-400.webp 400w, /faith-640.webp 640w, /faith-900.webp 900w"
+                  sizes="(min-width: 1024px) 22rem, (min-width: 640px) 20rem, 16rem"
+                />
+                <img
+                  src="/faith-640.jpg"
+                  alt="A selection of Faith's crocheted pieces arranged together"
+                  width="2048"
+                  height="2048"
+                  loading="eager"
+                  decoding="sync"
+                  fetchpriority="high"
+                  class="aspect-square h-full w-full object-cover transition-transform duration-[var(--duration-slow)] ease-soft group-hover:scale-[1.03]"
+                />
+              </picture>
+            </div>
+
+            <p class="pb-1 pt-4 text-center font-brand text-step-3 text-rose-text">by Faith</p>
           </div>
         </div>
-        <!-- Floating mini yarn balls -->
-        <div class="absolute -top-4 -right-4 w-10 h-10 bg-mint/40 rounded-full animate-float"></div>
-        <div class="absolute -bottom-2 -left-4 w-8 h-8 bg-lavender/40 rounded-full animate-float-delayed"></div>
       </div>
     </div>
   </div>
-
-  <!-- Stitched divider -->
-  <div class="h-px mx-auto max-w-2xl border-t-2 border-dashed border-primary/30 animate-stitch"></div>
 </section>

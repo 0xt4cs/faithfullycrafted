@@ -47,8 +47,9 @@
   /* ------------------------------------------------------------------
      SURFACES — the only backgrounds permitted to sit behind text.
      Every text token below is verified to clear WCAG AA 4.5:1 against
-     all five of these. `cream` is the darkest and therefore the binding
-     constraint; anything that passes on cream passes everywhere.
+     all five of these. `surface` is fractionally the darkest by luminance
+     (marginally below `cream`), so it is the binding constraint; anything
+     that clears 4.5:1 on it clears every other surface here.
      ------------------------------------------------------------------ */
   --color-page: #fff5f7;
   --color-surface: #fde8ee;
@@ -132,12 +133,9 @@
      low-opacity rather than a single hard drop. Replaces nine copies
      of shadow-primary/10 mixed with shadow-md / lg / xl.
      ------------------------------------------------------------------ */
-  --shadow-1:
-    0 1px 2px rgb(90 40 60 / 0.05), 0 2px 6px rgb(90 40 60 / 0.05);
-  --shadow-2:
-    0 2px 4px rgb(90 40 60 / 0.05), 0 8px 20px rgb(90 40 60 / 0.07);
-  --shadow-3:
-    0 4px 8px rgb(90 40 60 / 0.06), 0 18px 40px rgb(90 40 60 / 0.09);
+  --shadow-1: 0 1px 2px rgb(90 40 60 / 0.05), 0 2px 6px rgb(90 40 60 / 0.05);
+  --shadow-2: 0 2px 4px rgb(90 40 60 / 0.05), 0 8px 20px rgb(90 40 60 / 0.07);
+  --shadow-3: 0 4px 8px rgb(90 40 60 / 0.06), 0 18px 40px rgb(90 40 60 / 0.09);
 
   /* ------------------------------------------------------------------
      MOTION — one named feel, not ad-hoc per-component easing.

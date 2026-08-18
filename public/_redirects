@@ -1,7 +1,6 @@
-# Redirect www to non-www
-https://www.faithfullycrafted.ph/* https://faithfullycrafted.ph/:splat 301
-
-# .shop to .ph redirect handled by Cloudflare Redirect Rules (edge-level, not here)
+# No custom domain yet — the canonical origin is faithfullycrafted.pages.dev,
+# so there is no www or apex redirect to make here. Add one if a domain is
+# registered later.
 
 # Common misspellings
 /gallary     /gallery/   301
