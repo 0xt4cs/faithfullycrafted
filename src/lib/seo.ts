@@ -7,7 +7,6 @@ export function generateLocalBusinessSchema() {
     name: SITE.name,
     description: SITE.description,
     url: SITE.url,
-    email: SITE.email,
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'Caloocan',
@@ -46,5 +45,26 @@ export function generateCreativeWorkSchema(item: {
       '@type': 'LocalBusiness',
       name: SITE.name,
     },
+  };
+}
+
+/**
+ * FAQPage structured data.
+ *
+ * Takes the same array the page renders its <dl> from, so the visible
+ * questions and the structured data cannot drift apart.
+ */
+export function generateFaqSchema(items: { question: string; answer: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
   };
 }
